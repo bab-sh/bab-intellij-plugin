@@ -1,0 +1,9 @@
+package sh.bab.plugin.icons
+
+import com.intellij.openapi.util.IconLoader
+import javax.swing.Icon
+
+object BabIcons {
+    @JvmField
+    val FileType: Icon = IconLoader.getIcon("/icons/babfile.svg", BabIcons::class.java)
+}

@@ -1,10 +1,10 @@
 package sh.bab.plugin.filetype
 
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.yaml.YAMLLanguage
 import sh.bab.plugin.BabBundle
+import sh.bab.plugin.icons.BabIcons
 import javax.swing.Icon
 
 class BabFileType private constructor() : LanguageFileType(YAMLLanguage.INSTANCE) {
@@ -15,7 +15,7 @@ class BabFileType private constructor() : LanguageFileType(YAMLLanguage.INSTANCE
 
     override fun getDefaultExtension(): String = "yml"
 
-    override fun getIcon(): Icon = AllIcons.FileTypes.Yaml
+    override fun getIcon(): Icon = BabIcons.FileType
 
     companion object {
         @JvmField
