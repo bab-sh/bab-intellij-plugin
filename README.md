@@ -9,10 +9,14 @@ IntelliJ IDEA plugin for [bab](https://bab.sh) - a simple, cross-platform task r
 
 ## Features
 
-- File type recognition for `babfile.yml`, `Babfile.yml`, `babfile.yaml`, and `Babfile.yaml`
+- File type recognition for `babfile.yml` and `babfile.yaml` (case-insensitive)
 - YAML syntax highlighting for babfiles
 - Schema-based validation with inline errors and warnings
-- Autocompletion for babfile properties (tasks, deps, run, cmd, platforms, etc.)
+- Autocompletion for babfile properties (tasks, deps, run, cmd, platforms, includes)
+- Task dependency validation with errors for undefined task references
+- Self-dependency detection (errors when a task depends on itself)
+- Task name autocompletion in `deps` field (excludes current task to prevent circular deps)
+- Ctrl+Click navigation from dependency to task definition
 <!-- Plugin description end -->
 
 ## Installation
@@ -26,8 +30,3 @@ IntelliJ IDEA plugin for [bab](https://bab.sh) - a simple, cross-platform task r
 
   Download the [latest release](https://github.com/bab-sh/bab-intellij-plugin/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Settings</kbd> > <kbd>Install plugin from disk...</kbd>
-
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
-
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template

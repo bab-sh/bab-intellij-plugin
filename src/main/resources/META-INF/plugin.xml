@@ -6,6 +6,7 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
+    <depends>com.intellij.modules.json</depends>
 
     <resource-bundle>messages.BabBundle</resource-bundle>
 
@@ -16,10 +17,29 @@
             fieldName="INSTANCE"
             language="yaml"
             fileNamesCaseInsensitive="babfile.yml;babfile.yaml"/>
+
+        <psi.referenceContributor
+            language="yaml"
+            implementation="sh.bab.intellij.references.BabTaskReferenceContributor"/>
+
+        <completion.contributor
+            language="yaml"
+            implementationClass="sh.bab.intellij.completion.BabTaskCompletionContributor"/>
+
+        <localInspection
+            language="yaml"
+            shortName="BabUnresolvedTaskReference"
+            bundle="messages.BabBundle"
+            key="inspection.unresolved.task.reference.name"
+            groupBundle="messages.BabBundle"
+            groupKey="inspection.group.name"
+            enabledByDefault="true"
+            level="ERROR"
+            implementationClass="sh.bab.intellij.inspections.BabUnresolvedTaskReferenceInspection"/>
     </extensions>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <json.schemaProviderFactory
+    <extensions defaultExtensionNs="JavaScript.JsonSchema">
+        <ProviderFactory
             implementation="sh.bab.intellij.schema.BabSchemaProviderFactory"/>
     </extensions>
 </idea-plugin>

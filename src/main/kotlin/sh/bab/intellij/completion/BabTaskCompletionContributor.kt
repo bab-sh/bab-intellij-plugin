@@ -1,0 +1,47 @@
+package sh.bab.intellij.completion
+
+import com.intellij.codeInsight.completion.CompletionContributor
+import com.intellij.codeInsight.completion.CompletionParameters
+import com.intellij.codeInsight.completion.CompletionProvider
+import com.intellij.codeInsight.completion.CompletionResultSet
+import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.icons.AllIcons
+import com.intellij.patterns.PlatformPatterns
+import com.intellij.util.ProcessingContext
+import org.jetbrains.yaml.psi.YAMLFile
+import sh.bab.intellij.filetype.BabFileType
+import sh.bab.intellij.util.BabPsiUtil
+
+class BabTaskCompletionContributor : CompletionContributor() {
+    init {
+        extend(
+            CompletionType.BASIC,
+            PlatformPatterns.psiElement(),
+            object : CompletionProvider<CompletionParameters>() {
+                override fun addCompletions(
+                    parameters: CompletionParameters,
+                    context: ProcessingContext,
+                    result: CompletionResultSet
+                ) {
+                    val file = parameters.originalFile.virtualFile ?: return
+                    if (!BabFileType.isBabfile(file)) return
+                    if (!BabPsiUtil.isInsideDepsField(parameters.position)) return
+
+                    val yamlFile = parameters.originalFile as? YAMLFile ?: return
+                    val currentTaskName = BabPsiUtil.findCurrentTaskName(parameters.position)
+
+                    BabPsiUtil.extractTaskNames(yamlFile)
+                        .filter { it != currentTaskName }
+                        .forEach { taskName ->
+                            result.addElement(
+                                LookupElementBuilder.create(taskName)
+                                    .withIcon(AllIcons.Nodes.Method)
+                                    .withTypeText("task", true)
+                            )
+                        }
+                }
+            }
+        )
+    }
+}
