@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.0.2]
+
+### Added
+- Add Icons and plugin logo
+
 ## [0.0.1]
 
 ### Added
