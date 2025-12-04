@@ -1,0 +1,34 @@
+name: Check Schema
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  check-schema:
+    name: Check Schema Freshness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v5
+
+      - name: Download latest schema from bab repository
+        run: |
+          curl -sL https://raw.githubusercontent.com/bab-sh/bab/main/schema/babfile.schema.json -o /tmp/upstream-schema.json
+
+      - name: Compare schemas
+        run: |
+          if ! diff -q src/main/resources/schemas/babfile.schema.json /tmp/upstream-schema.json > /dev/null 2>&1; then
+            echo "::error::Bundled schema is out of date with upstream bab repository"
+            echo ""
+            echo "To update the schema, run:"
+            echo "  curl -sL https://raw.githubusercontent.com/bab-sh/bab/main/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
+            echo ""
+            echo "Diff:"
+            diff src/main/resources/schemas/babfile.schema.json /tmp/upstream-schema.json || true
+            exit 1
+          fi
+          echo "Schema is up to date with upstream bab repository"

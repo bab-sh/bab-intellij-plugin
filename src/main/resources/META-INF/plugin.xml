@@ -1,15 +1,25 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.aiomayo.babintellijplugin</id>
-    <name>bab-intellij-plugin</name>
-    <vendor>aiomayo</vendor>
+    <id>sh.bab.intellij</id>
+    <name>bab</name>
+    <vendor email="support@bab.sh" url="https://bab.sh">bab-sh</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <resource-bundle>messages.BabBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.aiomayo.babintellijplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.aiomayo.babintellijplugin.startup.MyProjectActivity" />
+        <fileType
+            name="Babfile"
+            implementationClass="sh.bab.intellij.filetype.BabFileType"
+            fieldName="INSTANCE"
+            language="yaml"
+            fileNamesCaseInsensitive="babfile.yml;babfile.yaml"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <json.schemaProviderFactory
+            implementation="sh.bab.intellij.schema.BabSchemaProviderFactory"/>
     </extensions>
 </idea-plugin>
