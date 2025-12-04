@@ -1,6 +1,6 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>sh.bab.intellij</id>
+    <id>sh.bab.plugin</id>
     <name>bab</name>
     <vendor email="support@bab.sh" url="https://bab.sh">bab-sh</vendor>
 
@@ -13,18 +13,18 @@
     <extensions defaultExtensionNs="com.intellij">
         <fileType
             name="Babfile"
-            implementationClass="sh.bab.intellij.filetype.BabFileType"
+            implementationClass="sh.bab.plugin.filetype.BabFileType"
             fieldName="INSTANCE"
             language="yaml"
             fileNamesCaseInsensitive="babfile.yml;babfile.yaml"/>
 
         <psi.referenceContributor
             language="yaml"
-            implementation="sh.bab.intellij.references.BabTaskReferenceContributor"/>
+            implementation="sh.bab.plugin.references.BabTaskReferenceContributor"/>
 
         <completion.contributor
             language="yaml"
-            implementationClass="sh.bab.intellij.completion.BabTaskCompletionContributor"/>
+            implementationClass="sh.bab.plugin.completion.BabTaskCompletionContributor"/>
 
         <localInspection
             language="yaml"
@@ -35,11 +35,11 @@
             groupKey="inspection.group.name"
             enabledByDefault="true"
             level="ERROR"
-            implementationClass="sh.bab.intellij.inspections.BabUnresolvedTaskReferenceInspection"/>
+            implementationClass="sh.bab.plugin.inspections.BabUnresolvedTaskReferenceInspection"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory
-            implementation="sh.bab.intellij.schema.BabSchemaProviderFactory"/>
+            implementation="sh.bab.plugin.schema.BabSchemaProviderFactory"/>
     </extensions>
 </idea-plugin>

@@ -1,4 +1,4 @@
-package sh.bab.intellij.references
+package sh.bab.plugin.references
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
@@ -8,7 +8,7 @@ import com.intellij.psi.PsiReferenceBase
 import com.intellij.psi.ResolveResult
 import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLScalar
-import sh.bab.intellij.util.BabPsiUtil
+import sh.bab.plugin.util.BabPsiUtil
 
 class BabTaskReference(
     element: YAMLScalar,

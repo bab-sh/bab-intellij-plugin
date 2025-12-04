@@ -1,7 +1,7 @@
-package sh.bab.intellij
+package sh.bab.plugin
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import sh.bab.intellij.filetype.BabFileType
+import sh.bab.plugin.filetype.BabFileType
 
 class BabFileTypeTest : BasePlatformTestCase() {
 

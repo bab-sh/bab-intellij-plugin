@@ -1,4 +1,4 @@
-package sh.bab.intellij.util
+package sh.bab.plugin.util
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.yaml.psi.YAMLFile

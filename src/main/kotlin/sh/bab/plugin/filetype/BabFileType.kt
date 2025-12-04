@@ -1,10 +1,10 @@
-package sh.bab.intellij.filetype
+package sh.bab.plugin.filetype
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.yaml.YAMLLanguage
-import sh.bab.intellij.BabBundle
+import sh.bab.plugin.BabBundle
 import javax.swing.Icon
 
 class BabFileType private constructor() : LanguageFileType(YAMLLanguage.INSTANCE) {

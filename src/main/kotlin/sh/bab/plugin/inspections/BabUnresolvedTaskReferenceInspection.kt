@@ -1,4 +1,4 @@
-package sh.bab.intellij.inspections
+package sh.bab.plugin.inspections
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.codeInspection.ProblemHighlightType
@@ -7,8 +7,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLScalar
-import sh.bab.intellij.filetype.BabFileType
-import sh.bab.intellij.util.BabPsiUtil
+import sh.bab.plugin.filetype.BabFileType
+import sh.bab.plugin.util.BabPsiUtil
 
 class BabUnresolvedTaskReferenceInspection : LocalInspectionTool() {
 

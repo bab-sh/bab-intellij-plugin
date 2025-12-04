@@ -1,4 +1,4 @@
-package sh.bab.intellij
+package sh.bab.plugin
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.PropertyKey

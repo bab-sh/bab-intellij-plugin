@@ -1,4 +1,4 @@
-package sh.bab.intellij.completion
+package sh.bab.plugin.completion
 
 import com.intellij.codeInsight.completion.CompletionContributor
 import com.intellij.codeInsight.completion.CompletionParameters
@@ -10,8 +10,8 @@ import com.intellij.icons.AllIcons
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
 import org.jetbrains.yaml.psi.YAMLFile
-import sh.bab.intellij.filetype.BabFileType
-import sh.bab.intellij.util.BabPsiUtil
+import sh.bab.plugin.filetype.BabFileType
+import sh.bab.plugin.util.BabPsiUtil
 
 class BabTaskCompletionContributor : CompletionContributor() {
     init {

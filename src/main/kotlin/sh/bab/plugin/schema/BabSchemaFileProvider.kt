@@ -1,10 +1,10 @@
-package sh.bab.intellij.schema
+package sh.bab.plugin.schema
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider
 import com.jetbrains.jsonSchema.extension.JsonSchemaProviderFactory
 import com.jetbrains.jsonSchema.extension.SchemaType
-import sh.bab.intellij.filetype.BabFileType
+import sh.bab.plugin.filetype.BabFileType
 
 class BabSchemaFileProvider : JsonSchemaFileProvider {
 
