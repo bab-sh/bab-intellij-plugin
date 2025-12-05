@@ -12,7 +12,7 @@ import org.jetbrains.yaml.psi.YAMLSequenceItem
 
 object BabPsiUtil {
 
-    fun isInsideDepsField(element: PsiElement): Boolean {
+    private fun isInsideDepsField(element: PsiElement): Boolean {
         var current: PsiElement? = element
         while (current != null) {
             if (current is YAMLSequenceItem) {
@@ -34,7 +34,7 @@ object BabPsiUtil {
         return false
     }
 
-    fun isInsideRunTaskField(element: PsiElement): Boolean {
+    private fun isInsideRunTaskField(element: PsiElement): Boolean {
         var current: PsiElement? = element
         while (current != null) {
             if (current is YAMLKeyValue && current.keyText == "task") {
@@ -79,7 +79,7 @@ object BabPsiUtil {
         return null
     }
 
-    fun getTasksMapping(file: YAMLFile): YAMLMapping? {
+    private fun getTasksMapping(file: YAMLFile): YAMLMapping? {
         val rootMapping = file.documents.firstOrNull()?.topLevelValue as? YAMLMapping
             ?: return null
         val tasksKeyValue = rootMapping.keyValues.find { it.keyText == "tasks" }
@@ -87,7 +87,7 @@ object BabPsiUtil {
         return tasksKeyValue.value as? YAMLMapping
     }
 
-    fun extractTaskNames(file: YAMLFile): Set<String> {
+    private fun extractTaskNames(file: YAMLFile): Set<String> {
         return getTasksMapping(file)
             ?.keyValues
             ?.mapNotNull { it.keyText }
@@ -96,11 +96,11 @@ object BabPsiUtil {
             ?: emptySet()
     }
 
-    fun getTaskKeyValues(file: YAMLFile): List<YAMLKeyValue> {
+    private fun getTaskKeyValues(file: YAMLFile): List<YAMLKeyValue> {
         return getTasksMapping(file)?.keyValues?.toList() ?: emptyList()
     }
 
-    fun getIncludesMapping(file: YAMLFile): YAMLMapping? {
+    private fun getIncludesMapping(file: YAMLFile): YAMLMapping? {
         val rootMapping = file.documents.firstOrNull()?.topLevelValue as? YAMLMapping
             ?: return null
         val includesKeyValue = rootMapping.keyValues.find { it.keyText == "includes" }
@@ -125,7 +125,7 @@ object BabPsiUtil {
         return babfileValue?.textValue
     }
 
-    fun resolveIncludedFile(file: YAMLFile, includeName: String): VirtualFile? {
+    private fun resolveIncludedFile(file: YAMLFile, includeName: String): VirtualFile? {
         val path = getIncludeBabfilePath(file, includeName) ?: return null
         val parentDir = file.virtualFile?.parent ?: return null
         return if (path.startsWith("/")) {
@@ -135,7 +135,7 @@ object BabPsiUtil {
         }
     }
 
-    fun getIncludedYamlFile(file: YAMLFile, includeName: String): YAMLFile? {
+    private fun getIncludedYamlFile(file: YAMLFile, includeName: String): YAMLFile? {
         val virtualFile = resolveIncludedFile(file, includeName) ?: return null
         return PsiManager.getInstance(file.project).findFile(virtualFile) as? YAMLFile
     }

@@ -65,7 +65,7 @@ jobs:
         run: |
           TAG_VERSION="${{ github.event.release.tag_name }}"
           TAG_VERSION="${TAG_VERSION#v}"
-          ./gradlew getChangelog --version="$TAG_VERSION" --no-header
+          ./gradlew getChangelog --project-version="$TAG_VERSION" --no-header
 
       # Update the Unreleased section with the current release note
       - name: Patch Changelog

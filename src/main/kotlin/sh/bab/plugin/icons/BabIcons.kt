@@ -9,7 +9,4 @@ object BabIcons {
 
     @JvmField
     val Task: Icon = IconLoader.getIcon("/icons/task.svg", BabIcons::class.java)
-
-    @JvmField
-    val ToolWindow: Icon = IconLoader.getIcon("/icons/bab-toolwindow.svg", BabIcons::class.java)
 }

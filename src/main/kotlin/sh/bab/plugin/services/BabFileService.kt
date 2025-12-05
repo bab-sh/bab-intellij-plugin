@@ -54,7 +54,7 @@ class BabFileService(private val project: Project) {
             ?: babfiles.firstOrNull()
     }
 
-    fun parseBabfile(file: VirtualFile, basePath: String = "", visited: MutableSet<String> = mutableSetOf()): BabFile? {
+    private fun parseBabfile(file: VirtualFile, basePath: String = "", visited: MutableSet<String> = mutableSetOf()): BabFile? {
         val filePath = file.path
         if (filePath in visited) {
             LOG.debug("Skipping already visited babfile: $filePath")
