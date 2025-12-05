@@ -140,26 +140,40 @@ object BabPsiUtil {
         return PsiManager.getInstance(file.project).findFile(virtualFile) as? YAMLFile
     }
 
-    fun extractAllTaskReferences(file: YAMLFile): Set<String> {
+    fun extractAllTaskReferences(file: YAMLFile, prefix: String = "", visited: MutableSet<String> = mutableSetOf()): Set<String> {
+        val filePath = file.virtualFile?.path ?: return emptySet()
+        if (filePath in visited) return emptySet()
+        visited.add(filePath)
+
         val result = mutableSetOf<String>()
-        result.addAll(extractTaskNames(file))
+
+        for (taskName in extractTaskNames(file)) {
+            result.add(if (prefix.isEmpty()) taskName else "$prefix:$taskName")
+        }
+
         for (includeName in extractIncludeNames(file)) {
             val includedFile = getIncludedYamlFile(file, includeName) ?: continue
-            for (taskName in extractTaskNames(includedFile)) {
-                result.add("$includeName:$taskName")
-            }
+            val nestedPrefix = if (prefix.isEmpty()) includeName else "$prefix:$includeName"
+            result.addAll(extractAllTaskReferences(includedFile, nestedPrefix, visited))
         }
+
         return result
     }
 
-    fun resolveTaskReference(file: YAMLFile, reference: String): YAMLKeyValue? {
+    fun resolveTaskReference(file: YAMLFile, reference: String, visited: MutableSet<String> = mutableSetOf()): YAMLKeyValue? {
+        val filePath = file.virtualFile?.path ?: return null
+        if (filePath in visited) return null
+        visited.add(filePath)
+
         getTaskKeyValues(file).find { it.keyText == reference }?.let { return it }
+
         if (reference.contains(":")) {
             val prefix = reference.substringBefore(":")
-            val taskName = reference.substringAfter(":")
+            val remainder = reference.substringAfter(":")
             val includedFile = getIncludedYamlFile(file, prefix) ?: return null
-            return getTaskKeyValues(includedFile).find { it.keyText == taskName }
+            return resolveTaskReference(includedFile, remainder, visited)
         }
+
         return null
     }
 
