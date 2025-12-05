@@ -40,6 +40,15 @@ class BabTaskCompletionContributor : CompletionContributor() {
                                     .withTypeText("task", true)
                             )
                         }
+
+                    BabPsiUtil.extractIncludeNames(yamlFile).forEach { includeName ->
+                        result.addElement(
+                            LookupElementBuilder.create("$includeName:")
+                                .withIcon(BabIcons.Task)
+                                .withTypeText("include", true)
+                                .withTailText(" (external task)", true)
+                        )
+                    }
                 }
             }
         )
