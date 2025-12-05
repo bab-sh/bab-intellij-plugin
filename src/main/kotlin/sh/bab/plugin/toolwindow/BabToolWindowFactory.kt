@@ -8,7 +8,6 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 import sh.bab.plugin.services.BabFileService
 
-@Suppress("UnstableApiUsage")
 class BabToolWindowFactory : ToolWindowFactory, DumbAware {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
