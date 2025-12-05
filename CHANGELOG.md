@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.0.7]
+
+### Added
+
+- Hierarchical task grouping in tool window (tasks with colons are grouped by prefix)
+
+### Changed
+
+- Add changelog validation to CI workflows
+
 ## [0.0.6]
 
 ### Changed
@@ -81,7 +91,9 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.5...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.7...HEAD
+[0.0.7]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.6...v0.0.7
+[0.0.6]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.2...v0.0.3
