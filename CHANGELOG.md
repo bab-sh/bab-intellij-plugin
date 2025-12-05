@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.0.4]
+
+### Added
+
+- Support for cross-file task references with include prefix syntax (`includename:taskname`)
+- Autocompletion for include prefixes in task dependencies
+- Validation for include prefix references
+
+### Fixed
+
+- Fixed false positive errors for tasks named `deps`, `run`, or `task`
+- Improved robustness of task reference detection with full PSI tree validation
+
 ## [0.0.3]
 
 ### Added
@@ -45,7 +58,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/bab-sh/bab-intellij-plugin/commits/v0.0.1
