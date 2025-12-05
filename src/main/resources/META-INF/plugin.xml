@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>sh.bab.plugin</id>
-    <name>bab</name>
+    <name>Bab</name>
     <vendor email="support@bab.sh" url="https://bab.sh">bab-sh</vendor>
 
     <depends>com.intellij.modules.platform</depends>
@@ -14,9 +14,11 @@
         <fileType
             name="Babfile"
             implementationClass="sh.bab.plugin.filetype.BabFileType"
-            fieldName="INSTANCE"
             language="yaml"
             fileNamesCaseInsensitive="babfile.yml;babfile.yaml"/>
+
+        <fileTypeOverrider
+            implementation="sh.bab.plugin.filetype.BabFileTypeOverrider"/>
 
         <psi.referenceContributor
             language="yaml"
@@ -36,10 +38,15 @@
             enabledByDefault="true"
             level="ERROR"
             implementationClass="sh.bab.plugin.inspections.BabUnresolvedTaskReferenceInspection"/>
+
+        <toolWindow
+            id="Bab"
+            anchor="right"
+            icon="/icons/bab-toolwindow.svg"
+            factoryClass="sh.bab.plugin.toolwindow.BabToolWindowFactory"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
-        <ProviderFactory
-            implementation="sh.bab.plugin.schema.BabSchemaProviderFactory"/>
+        <ProviderFactory implementation="sh.bab.plugin.schema.BabSchemaProviderFactory"/>
     </extensions>
 </idea-plugin>

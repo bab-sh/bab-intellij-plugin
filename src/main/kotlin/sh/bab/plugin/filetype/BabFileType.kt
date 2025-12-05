@@ -7,6 +7,19 @@ import sh.bab.plugin.BabBundle
 import sh.bab.plugin.icons.BabIcons
 import javax.swing.Icon
 
+private val BABFILE_PATTERN = Regex(
+    "^babfile(?:\\.[^.]+)?\\.(yml|yaml)$",
+    RegexOption.IGNORE_CASE
+)
+
+fun isBabfile(file: VirtualFile): Boolean {
+    return isBabfileName(file.name)
+}
+
+fun isBabfileName(fileName: String): Boolean {
+    return BABFILE_PATTERN.matches(fileName)
+}
+
 class BabFileType private constructor() : LanguageFileType(YAMLLanguage.INSTANCE) {
 
     override fun getName(): String = "Babfile"
@@ -20,10 +33,5 @@ class BabFileType private constructor() : LanguageFileType(YAMLLanguage.INSTANCE
     companion object {
         @JvmField
         val INSTANCE = BabFileType()
-
-        fun isBabfile(file: VirtualFile): Boolean {
-            val fileName = file.name.lowercase()
-            return fileName == "babfile.yml" || fileName == "babfile.yaml"
-        }
     }
 }

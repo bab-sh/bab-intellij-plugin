@@ -1,0 +1,20 @@
+<html lang="en">
+<body>
+Reports unresolved task references in babfile dependency lists.
+<p>
+    This inspection checks that all task names referenced in the <code>deps</code> field
+    exist as defined tasks in the same babfile. It also detects self-referential dependencies
+    where a task depends on itself.
+</p>
+<p><b>Example of problems:</b></p>
+<pre><code>
+tasks:
+  build:
+    deps:
+      - nonexistent  # Error: Unresolved task reference
+      - build        # Error: Task cannot depend on itself
+    run:
+      - cmd: echo "Building"
+</code></pre>
+</body>
+</html>
