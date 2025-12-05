@@ -6,4 +6,10 @@ import javax.swing.Icon
 object BabIcons {
     @JvmField
     val FileType: Icon = IconLoader.getIcon("/icons/babfile.svg", BabIcons::class.java)
+
+    @JvmField
+    val Task: Icon = IconLoader.getIcon("/icons/task.svg", BabIcons::class.java)
+
+    @JvmField
+    val ToolWindow: Icon = IconLoader.getIcon("/icons/bab-toolwindow.svg", BabIcons::class.java)
 }

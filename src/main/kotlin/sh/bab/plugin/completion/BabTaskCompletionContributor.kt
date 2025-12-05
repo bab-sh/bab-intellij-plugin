@@ -6,11 +6,11 @@ import com.intellij.codeInsight.completion.CompletionProvider
 import com.intellij.codeInsight.completion.CompletionResultSet
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.icons.AllIcons
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
 import org.jetbrains.yaml.psi.YAMLFile
-import sh.bab.plugin.filetype.BabFileType
+import sh.bab.plugin.filetype.isBabfile
+import sh.bab.plugin.icons.BabIcons
 import sh.bab.plugin.util.BabPsiUtil
 
 class BabTaskCompletionContributor : CompletionContributor() {
@@ -25,8 +25,8 @@ class BabTaskCompletionContributor : CompletionContributor() {
                     result: CompletionResultSet
                 ) {
                     val file = parameters.originalFile.virtualFile ?: return
-                    if (!BabFileType.isBabfile(file)) return
-                    if (!BabPsiUtil.isInsideDepsField(parameters.position)) return
+                    if (!isBabfile(file)) return
+                    if (!BabPsiUtil.isTaskReferenceContext(parameters.position)) return
 
                     val yamlFile = parameters.originalFile as? YAMLFile ?: return
                     val currentTaskName = BabPsiUtil.findCurrentTaskName(parameters.position)
@@ -36,7 +36,7 @@ class BabTaskCompletionContributor : CompletionContributor() {
                         .forEach { taskName ->
                             result.addElement(
                                 LookupElementBuilder.create(taskName)
-                                    .withIcon(AllIcons.Nodes.Method)
+                                    .withIcon(BabIcons.Task)
                                     .withTypeText("task", true)
                             )
                         }

@@ -9,7 +9,7 @@ import com.intellij.psi.PsiReferenceProvider
 import com.intellij.psi.PsiReferenceRegistrar
 import com.intellij.util.ProcessingContext
 import org.jetbrains.yaml.psi.YAMLScalar
-import sh.bab.plugin.filetype.BabFileType
+import sh.bab.plugin.filetype.isBabfile
 import sh.bab.plugin.util.BabPsiUtil
 
 class BabTaskReferenceContributor : PsiReferenceContributor() {
@@ -24,8 +24,8 @@ class BabTaskReferenceContributor : PsiReferenceContributor() {
                     if (element !is YAMLScalar) return PsiReference.EMPTY_ARRAY
 
                     val file = element.containingFile?.virtualFile ?: return PsiReference.EMPTY_ARRAY
-                    if (!BabFileType.isBabfile(file)) return PsiReference.EMPTY_ARRAY
-                    if (!BabPsiUtil.isInsideDepsField(element)) return PsiReference.EMPTY_ARRAY
+                    if (!isBabfile(file)) return PsiReference.EMPTY_ARRAY
+                    if (!BabPsiUtil.isTaskReferenceContext(element)) return PsiReference.EMPTY_ARRAY
 
                     val taskName = element.textValue.trim()
                     if (taskName.isEmpty()) return PsiReference.EMPTY_ARRAY

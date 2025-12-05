@@ -29,6 +29,31 @@ object BabPsiUtil {
         return false
     }
 
+    fun isInsideRunTaskField(element: PsiElement): Boolean {
+        var parent: PsiElement? = element.parent
+        while (parent != null) {
+            if (parent is YAMLKeyValue && parent.keyText == "task") {
+                val mapping = parent.parent
+                if (mapping is YAMLMapping) {
+                    val sequenceItem = mapping.parent
+                    if (sequenceItem is YAMLSequenceItem) {
+                        val sequence = sequenceItem.parent
+                        val runKeyValue = sequence?.parent
+                        if (runKeyValue is YAMLKeyValue && runKeyValue.keyText == "run") {
+                            return true
+                        }
+                    }
+                }
+            }
+            parent = parent.parent
+        }
+        return false
+    }
+
+    fun isTaskReferenceContext(element: PsiElement): Boolean {
+        return isInsideDepsField(element) || isInsideRunTaskField(element)
+    }
+
     fun findCurrentTaskName(element: PsiElement): String? {
         var parent: PsiElement? = element.parent
         while (parent != null) {
