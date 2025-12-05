@@ -1,24 +1,16 @@
 package sh.bab.plugin.util
 
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiManager
 import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequenceItem
 
-data class TaskReference(val includePrefix: String?, val taskName: String)
-
 object BabPsiUtil {
-
-    fun parseTaskReference(reference: String): TaskReference {
-        val parts = reference.split(":", limit = 2)
-        return if (parts.size == 2) {
-            TaskReference(includePrefix = parts[0], taskName = parts[1])
-        } else {
-            TaskReference(includePrefix = null, taskName = reference)
-        }
-    }
 
     fun isInsideDepsField(element: PsiElement): Boolean {
         var current: PsiElement? = element
@@ -129,7 +121,49 @@ object BabPsiUtil {
         val includesMapping = getIncludesMapping(file) ?: return null
         val includeKeyValue = includesMapping.keyValues.find { it.keyText == includeName } ?: return null
         val includeMapping = includeKeyValue.value as? YAMLMapping ?: return null
-        val babfileKeyValue = includeMapping.keyValues.find { it.keyText == "babfile" } ?: return null
-        return (babfileKeyValue.value as? YAMLScalar)?.textValue
+        val babfileValue = includeMapping.keyValues.find { it.keyText == "babfile" }?.value as? YAMLScalar
+        return babfileValue?.textValue
+    }
+
+    fun resolveIncludedFile(file: YAMLFile, includeName: String): VirtualFile? {
+        val path = getIncludeBabfilePath(file, includeName) ?: return null
+        val parentDir = file.virtualFile?.parent ?: return null
+        return if (path.startsWith("/")) {
+            VirtualFileManager.getInstance().findFileByUrl("file://$path")
+        } else {
+            parentDir.findFileByRelativePath(path)
+        }
+    }
+
+    fun getIncludedYamlFile(file: YAMLFile, includeName: String): YAMLFile? {
+        val virtualFile = resolveIncludedFile(file, includeName) ?: return null
+        return PsiManager.getInstance(file.project).findFile(virtualFile) as? YAMLFile
+    }
+
+    fun extractAllTaskReferences(file: YAMLFile): Set<String> {
+        val result = mutableSetOf<String>()
+        result.addAll(extractTaskNames(file))
+        for (includeName in extractIncludeNames(file)) {
+            val includedFile = getIncludedYamlFile(file, includeName) ?: continue
+            for (taskName in extractTaskNames(includedFile)) {
+                result.add("$includeName:$taskName")
+            }
+        }
+        return result
+    }
+
+    fun resolveTaskReference(file: YAMLFile, reference: String): YAMLKeyValue? {
+        getTaskKeyValues(file).find { it.keyText == reference }?.let { return it }
+        if (reference.contains(":")) {
+            val prefix = reference.substringBefore(":")
+            val taskName = reference.substringAfter(":")
+            val includedFile = getIncludedYamlFile(file, prefix) ?: return null
+            return getTaskKeyValues(includedFile).find { it.keyText == taskName }
+        }
+        return null
+    }
+
+    fun isValidTaskReference(file: YAMLFile, reference: String): Boolean {
+        return resolveTaskReference(file, reference) != null
     }
 }

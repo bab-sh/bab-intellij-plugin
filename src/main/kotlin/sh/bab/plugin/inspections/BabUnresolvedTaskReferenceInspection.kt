@@ -20,41 +20,28 @@ class BabUnresolvedTaskReferenceInspection : LocalInspectionTool() {
         val virtualFile = file.virtualFile ?: return PsiElementVisitor.EMPTY_VISITOR
         if (!isBabfile(virtualFile)) return PsiElementVisitor.EMPTY_VISITOR
 
-        val taskNames = BabPsiUtil.extractTaskNames(file)
-        val includeNames = BabPsiUtil.extractIncludeNames(file)
-
         return object : PsiElementVisitor() {
             override fun visitElement(element: PsiElement) {
                 if (element !is YAMLScalar) return
                 if (!BabPsiUtil.isTaskReferenceContext(element)) return
 
-                val rawReference = element.textValue.trim()
-                if (rawReference.isEmpty()) return
+                val reference = element.textValue.trim()
+                if (reference.isEmpty()) return
 
-                val ref = BabPsiUtil.parseTaskReference(rawReference)
                 val currentTaskName = BabPsiUtil.findCurrentTaskName(element)
 
                 when {
-                    ref.includePrefix == null && ref.taskName == currentTaskName -> {
+                    reference == currentTaskName -> {
                         holder.registerProblem(
                             element,
-                            BabBundle.message("inspection.self.dependency", ref.taskName),
+                            BabBundle.message("inspection.self.dependency", reference),
                             ProblemHighlightType.ERROR
                         )
                     }
-                    ref.includePrefix != null -> {
-                        if (ref.includePrefix !in includeNames) {
-                            holder.registerProblem(
-                                element,
-                                BabBundle.message("inspection.unresolved.include", ref.includePrefix),
-                                ProblemHighlightType.ERROR
-                            )
-                        }
-                    }
-                    ref.taskName !in taskNames -> {
+                    !BabPsiUtil.isValidTaskReference(file, reference) -> {
                         holder.registerProblem(
                             element,
-                            BabBundle.message("inspection.unresolved.reference", ref.taskName),
+                            BabBundle.message("inspection.unresolved.reference", reference),
                             ProblemHighlightType.ERROR
                         )
                     }

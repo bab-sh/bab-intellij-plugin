@@ -15,17 +15,20 @@ jobs:
       - name: Fetch Sources
         uses: actions/checkout@v6
 
-      - name: Download latest schema from bab repository
+      - name: Download latest schema from bab repository (latest release)
         run: |
-          curl -sL https://raw.githubusercontent.com/bab-sh/bab/main/schema/babfile.schema.json -o /tmp/upstream-schema.json
+          LATEST_TAG=$(curl -sL https://api.github.com/repos/bab-sh/bab/releases/latest | jq -r '.tag_name')
+          echo "Latest release tag: $LATEST_TAG"
+          curl -sL "https://raw.githubusercontent.com/bab-sh/bab/${LATEST_TAG}/schema/babfile.schema.json" -o /tmp/upstream-schema.json
 
       - name: Compare schemas
         run: |
           if ! diff -q src/main/resources/schemas/babfile.schema.json /tmp/upstream-schema.json > /dev/null 2>&1; then
-            echo "::error::Bundled schema is out of date with upstream bab repository"
+            LATEST_TAG=$(curl -sL https://api.github.com/repos/bab-sh/bab/releases/latest | jq -r '.tag_name')
+            echo "::error::Bundled schema is out of date with upstream bab repository (${LATEST_TAG})"
             echo ""
             echo "To update the schema, run:"
-            echo "  curl -sL https://raw.githubusercontent.com/bab-sh/bab/main/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
+            echo "  curl -sL https://raw.githubusercontent.com/bab-sh/bab/${LATEST_TAG}/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
             echo ""
             echo "Diff:"
             diff src/main/resources/schemas/babfile.schema.json /tmp/upstream-schema.json || true

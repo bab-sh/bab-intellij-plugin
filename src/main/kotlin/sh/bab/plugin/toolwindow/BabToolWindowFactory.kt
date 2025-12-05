@@ -8,6 +8,7 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 import sh.bab.plugin.services.BabFileService
 
+@Suppress("UnstableApiUsage")
 class BabToolWindowFactory : ToolWindowFactory, DumbAware {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
@@ -17,7 +18,7 @@ class BabToolWindowFactory : ToolWindowFactory, DumbAware {
         toolWindow.contentManager.addContent(content)
     }
 
-    override fun shouldBeAvailable(project: Project): Boolean {
+    override suspend fun isApplicableAsync(project: Project): Boolean {
         return project.service<BabFileService>().findRootBabfile() != null
     }
 }

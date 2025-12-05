@@ -18,23 +18,14 @@ class BabTaskReference(
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
         val yamlFile = element.containingFile as? YAMLFile ?: return ResolveResult.EMPTY_ARRAY
-        val ref = BabPsiUtil.parseTaskReference(taskName)
 
-        return if (ref.includePrefix != null) {
-            BabPsiUtil.getIncludesMapping(yamlFile)
-                ?.keyValues
-                ?.filter { it.keyText == ref.includePrefix }
-                ?.mapNotNull { it.key }
-                ?.map { PsiElementResolveResult(it) }
-                ?.toTypedArray()
-                ?: ResolveResult.EMPTY_ARRAY
-        } else {
-            BabPsiUtil.getTaskKeyValues(yamlFile)
-                .filter { it.keyText == ref.taskName }
-                .mapNotNull { it.key }
-                .map { PsiElementResolveResult(it) }
-                .toTypedArray()
+        val taskKeyValue = BabPsiUtil.resolveTaskReference(yamlFile, taskName)
+        if (taskKeyValue != null) {
+            val target = taskKeyValue.key ?: taskKeyValue
+            return arrayOf(PsiElementResolveResult(target))
         }
+
+        return ResolveResult.EMPTY_ARRAY
     }
 
     override fun resolve(): PsiElement? = multiResolve(false).firstOrNull()?.element

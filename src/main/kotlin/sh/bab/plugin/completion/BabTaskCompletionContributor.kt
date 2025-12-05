@@ -31,24 +31,24 @@ class BabTaskCompletionContributor : CompletionContributor() {
                     val yamlFile = parameters.originalFile as? YAMLFile ?: return
                     val currentTaskName = BabPsiUtil.findCurrentTaskName(parameters.position)
 
-                    BabPsiUtil.extractTaskNames(yamlFile)
+                    val includeNames = BabPsiUtil.extractIncludeNames(yamlFile)
+
+                    BabPsiUtil.extractAllTaskReferences(yamlFile)
                         .filter { it != currentTaskName }
-                        .forEach { taskName ->
+                        .forEach { taskRef ->
+                            val prefix = taskRef.substringBefore(":")
+                            val isExternal = taskRef.contains(":") && prefix in includeNames
+                            val typeText = if (isExternal) {
+                                BabPsiUtil.getIncludeBabfilePath(yamlFile, prefix) ?: prefix
+                            } else {
+                                "task"
+                            }
                             result.addElement(
-                                LookupElementBuilder.create(taskName)
+                                LookupElementBuilder.create(taskRef)
                                     .withIcon(BabIcons.Task)
-                                    .withTypeText("task", true)
+                                    .withTypeText(typeText, true)
                             )
                         }
-
-                    BabPsiUtil.extractIncludeNames(yamlFile).forEach { includeName ->
-                        result.addElement(
-                            LookupElementBuilder.create("$includeName:")
-                                .withIcon(BabIcons.Task)
-                                .withTypeText("include", true)
-                                .withTailText(" (external task)", true)
-                        )
-                    }
                 }
             }
         )

@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [0.0.5]
+
+### Added
+
+- Full autocompletion for external tasks showing complete task names (e.g., `external:build`, `external:test`)
+- Ctrl+Click navigation to task definitions in included babfiles
+- Support for task variants with colon syntax (e.g., `test:race`, `lint:fix`)
+
+### Changed
+
+- External tasks now display the included file path in completion popup instead of generic label
+- Simplified and unified task reference resolution logic
+
+### Fixed
+
+- Validation now checks if tasks actually exist in included files (not just prefix existence)
+
 ## [0.0.4]
 
 ### Added
@@ -58,7 +75,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.1...v0.0.2
