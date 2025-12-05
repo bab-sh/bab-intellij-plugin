@@ -18,12 +18,24 @@ data class BabFileNode(
 
 data class BabTaskNode(
     val task: BabTask,
-    val parentFile: VirtualFile
+    val parentFile: VirtualFile,
+    val leafName: String? = null
 ) : BabTreeNode() {
     val name: String get() = task.name
     val description: String? get() = task.description
     val psiElement get() = task.psiElement
 
     override val displayName: String
-        get() = name
+        get() = leafName ?: name
+}
+
+data class BabTaskGroupNode(
+    val name: String,
+    val task: BabTask? = null,
+    val parentFile: VirtualFile
+) : BabTreeNode() {
+    val description: String? get() = task?.description
+    val psiElement get() = task?.psiElement
+
+    override val displayName: String get() = name
 }

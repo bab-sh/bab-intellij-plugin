@@ -20,6 +20,7 @@ import com.intellij.util.ui.tree.TreeUtil
 import sh.bab.plugin.BabBundle
 import sh.bab.plugin.services.BabFile
 import sh.bab.plugin.services.BabFileService
+import sh.bab.plugin.services.BabTask
 import java.awt.Component
 import java.awt.datatransfer.StringSelection
 import java.awt.event.MouseAdapter
@@ -146,13 +147,7 @@ class BabToolWindowPanel(
         )
         val treeNode = DefaultMutableTreeNode(fileNode)
 
-        babFile.tasks.forEach { task ->
-            val taskNode = BabTaskNode(
-                task = task,
-                parentFile = babFile.file
-            )
-            treeNode.add(DefaultMutableTreeNode(taskNode))
-        }
+        addTasksHierarchically(treeNode, babFile.tasks, babFile.file)
 
         babFile.includes.forEach { include ->
             include.resolvedFile?.let { resolvedFile ->
@@ -163,18 +158,101 @@ class BabToolWindowPanel(
         parentNode.add(treeNode)
     }
 
+    private fun addTasksHierarchically(
+        parentNode: DefaultMutableTreeNode,
+        tasks: List<BabTask>,
+        parentFile: com.intellij.openapi.vfs.VirtualFile
+    ) {
+        val nodeMap = mutableMapOf<String, DefaultMutableTreeNode>()
+        val sortedTasks = tasks.sortedBy { it.name }
+
+        for (task in sortedTasks) {
+            val parts = task.name.split(":")
+
+            if (parts.size == 1) {
+                val existingNode = nodeMap[task.name]
+                if (existingNode != null) {
+                    val groupNode = existingNode.userObject as? BabTaskGroupNode
+                    if (groupNode != null) {
+                        existingNode.userObject = BabTaskGroupNode(
+                            name = groupNode.name,
+                            task = task,
+                            parentFile = parentFile
+                        )
+                    }
+                } else {
+                    val taskNode = BabTaskNode(task = task, parentFile = parentFile)
+                    val treeNode = DefaultMutableTreeNode(taskNode)
+                    nodeMap[task.name] = treeNode
+                    parentNode.add(treeNode)
+                }
+            } else {
+                var currentParent = parentNode
+                var currentPath = ""
+
+                for (i in 0 until parts.size - 1) {
+                    val part = parts[i]
+                    currentPath = if (currentPath.isEmpty()) part else "$currentPath:$part"
+
+                    var intermediateNode = nodeMap[currentPath]
+                    if (intermediateNode == null) {
+                        val groupNode = BabTaskGroupNode(
+                            name = part,
+                            task = null,
+                            parentFile = parentFile
+                        )
+                        intermediateNode = DefaultMutableTreeNode(groupNode)
+                        nodeMap[currentPath] = intermediateNode
+                        currentParent.add(intermediateNode)
+                    }
+                    currentParent = intermediateNode
+                }
+
+                val leafName = parts.last()
+                val taskNode = BabTaskNode(task = task, parentFile = parentFile, leafName = leafName)
+                val treeNode = DefaultMutableTreeNode(taskNode)
+                currentParent.add(treeNode)
+            }
+        }
+    }
+
     private fun getSelectedTaskNode(): BabTaskNode? {
         val selectedNode = tree.selectionPath?.lastPathComponent as? DefaultMutableTreeNode
         return selectedNode?.userObject as? BabTaskNode
     }
 
-    private fun navigateToSelectedTask() {
-        val taskNode = getSelectedTaskNode() ?: return
-        val psiElement = taskNode.psiElement ?: return
+    private fun getSelectedTaskGroupNode(): BabTaskGroupNode? {
+        val selectedNode = tree.selectionPath?.lastPathComponent as? DefaultMutableTreeNode
+        return selectedNode?.userObject as? BabTaskGroupNode
+    }
 
-        val offset = psiElement.textOffset
-        val descriptor = OpenFileDescriptor(project, taskNode.parentFile, offset)
+    private fun canNavigateToSelected(): Boolean {
+        val taskNode = getSelectedTaskNode()
+        if (taskNode?.psiElement != null) return true
+        val groupNode = getSelectedTaskGroupNode()
+        return groupNode?.psiElement != null
+    }
+
+    private fun navigateToSelectedTask() {
+        val taskNode = getSelectedTaskNode()
+        val groupNode = getSelectedTaskGroupNode()
+
+        val (psiElement, parentFile) = when {
+            taskNode?.psiElement != null -> taskNode.psiElement to taskNode.parentFile
+            groupNode?.psiElement != null -> groupNode.psiElement to groupNode.parentFile
+            else -> return
+        }
+
+        val offset = psiElement!!.textOffset
+        val descriptor = OpenFileDescriptor(project, parentFile, offset)
         FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
+    }
+
+    private fun getSelectedTaskName(): String? {
+        val taskNode = getSelectedTaskNode()
+        if (taskNode != null) return taskNode.name
+        val groupNode = getSelectedTaskGroupNode()
+        return groupNode?.task?.name
     }
 
 
@@ -212,7 +290,7 @@ class BabToolWindowPanel(
         }
 
         override fun update(e: AnActionEvent) {
-            e.presentation.isEnabled = getSelectedTaskNode() != null
+            e.presentation.isEnabled = canNavigateToSelected()
         }
 
         override fun getActionUpdateThread() = ActionUpdateThread.EDT
@@ -224,12 +302,12 @@ class BabToolWindowPanel(
         AllIcons.Actions.Copy
     ) {
         override fun actionPerformed(e: AnActionEvent) {
-            val taskNode = getSelectedTaskNode() ?: return
-            CopyPasteManager.getInstance().setContents(StringSelection(taskNode.name))
+            val name = getSelectedTaskName() ?: return
+            CopyPasteManager.getInstance().setContents(StringSelection(name))
         }
 
         override fun update(e: AnActionEvent) {
-            e.presentation.isEnabled = getSelectedTaskNode() != null
+            e.presentation.isEnabled = getSelectedTaskName() != null
         }
 
         override fun getActionUpdateThread() = ActionUpdateThread.EDT
