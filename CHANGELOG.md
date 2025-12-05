@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.0.6]
+
+### Changed
+
+- Update deep task nesting regex
+
 ## [0.0.5]
 
 ### Added
