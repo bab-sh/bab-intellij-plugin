@@ -36,7 +36,16 @@ jobs:
           distribution: zulu
           java-version: 21
       - uses: gradle/actions/setup-gradle@v5
-      - run: ./gradlew getChangelog --unreleased
+      - name: Validate changelog format
+        run: ./gradlew getChangelog
+      - name: Validate version has changelog entry
+        run: |
+          VERSION=$(grep '^pluginVersion' gradle.properties | cut -d'=' -f2 | tr -d ' ')
+          echo "Checking changelog entry for version: $VERSION"
+          ./gradlew getChangelog --project-version="$VERSION" --no-header || {
+            echo "::error::No changelog entry for version $VERSION. Add a [${VERSION}] section to CHANGELOG.md"
+            exit 1
+          }
 
   build:
     name: Build
