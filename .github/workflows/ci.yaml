@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  schema:
+    name: Check Schema
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Verify schema is up to date
+        run: |
+          TAG=$(curl -sf https://api.github.com/repos/bab-sh/bab/releases/latest | jq -r '.tag_name')
+          curl -sf "https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json" -o /tmp/upstream.json
+          diff src/main/resources/schemas/babfile.schema.json /tmp/upstream.json || {
+            echo "::error::Schema outdated. Run: curl -sL https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
+            exit 1
+          }
+
+  changelog:
+    name: Validate Changelog
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v5
+      - run: ./gradlew getChangelog --unreleased
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v5
+      - run: ./gradlew buildPlugin
+      - name: Prepare artifact
+        id: artifact
+        run: |
+          cd build/distributions
+          FILENAME=$(ls *.zip)
+          unzip "$FILENAME" -d content
+          echo "filename=${FILENAME:0:-4}" >> $GITHUB_OUTPUT
+      - uses: actions/upload-artifact@v5
+        with:
+          name: ${{ steps.artifact.outputs.filename }}
+          path: build/distributions/content/*/*
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v5
+      - run: ./gradlew check
+      - if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: tests-result
+          path: build/reports/tests
+      - uses: codecov/codecov-action@v5
+        with:
+          files: build/reports/kover/report.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  inspect:
+    name: Inspect Code
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      checks: write
+      pull-requests: write
+    steps:
+      - uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+      - uses: JetBrains/qodana-action@v2025.2.2
+        with:
+          cache-default-branch-only: true
+
+  verify:
+    name: Verify Plugin
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v5
+      - run: ./gradlew verifyPlugin
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: pluginVerifier-result
+          path: build/reports/pluginVerifier

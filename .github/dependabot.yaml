@@ -1,0 +1,40 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - gradle
+    commit-message:
+      prefix: "deps(gradle)"
+    groups:
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*"
+      intellij:
+        patterns:
+          - "org.jetbrains.intellij*"
+          - "org.jetbrains.changelog*"
+          - "org.jetbrains.qodana*"
+      testing:
+        patterns:
+          - "*junit*"
+          - "*test*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: "deps(actions)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

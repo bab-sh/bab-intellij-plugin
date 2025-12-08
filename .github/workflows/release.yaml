@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  release:
+    types: [prereleased, released]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  schema:
+    name: Check Schema
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - name: Verify schema is up to date
+        run: |
+          TAG=$(curl -sf https://api.github.com/repos/bab-sh/bab/releases/latest | jq -r '.tag_name')
+          curl -sf "https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json" -o /tmp/upstream.json
+          diff src/main/resources/schemas/babfile.schema.json /tmp/upstream.json || {
+            echo "::error::Schema outdated. Run: curl -sL https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
+            exit 1
+          }
+
+  publish:
+    name: Publish Plugin
+    needs: [schema]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          large-packages: false
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: true
+
+      - name: Validate Changelog Format
+        run: ./gradlew getChangelog
+
+      - name: Validate Version Consistency
+        id: version
+        run: |
+          TAG_VERSION="${{ github.event.release.tag_name }}"
+          TAG_VERSION="${TAG_VERSION#v}"
+          GRADLE_VERSION=$(./gradlew properties --property version --quiet --console=plain | tail -n 1 | cut -f2- -d ' ')
+
+          if [[ "$TAG_VERSION" != "$GRADLE_VERSION" ]]; then
+            echo "::error::Version mismatch! Release tag: $TAG_VERSION, gradle.properties: $GRADLE_VERSION"
+            exit 1
+          fi
+
+          echo "version=$TAG_VERSION" >> $GITHUB_OUTPUT
+          echo "::notice::Version validated: $TAG_VERSION"
+
+      - name: Validate Changelog Entry
+        run: |
+          ./gradlew getChangelog --project-version="${{ steps.version.outputs.version }}" --no-header
+
+      - name: Patch Changelog
+        if: github.event.release.body != ''
+        env:
+          CHANGELOG: ${{ github.event.release.body }}
+        run: |
+          RELEASE_NOTE="./build/tmp/release_note.txt"
+          mkdir -p "$(dirname "$RELEASE_NOTE")"
+          echo "$CHANGELOG" > "$RELEASE_NOTE"
+          ./gradlew patchChangelog --release-note-file="$RELEASE_NOTE"
+
+      - name: Publish Plugin
+        env:
+          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
+        run: ./gradlew publishPlugin
+
+      - name: Upload Release Asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*
+
+      - name: Create Release Summary
+        run: |
+          echo "## Release Published Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | \`${{ steps.version.outputs.version }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | \`${{ github.event.release.tag_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Type | ${{ github.event.action }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Plugin has been signed and published to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/27200-bab)." >> $GITHUB_STEP_SUMMARY
