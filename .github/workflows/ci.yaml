@@ -252,6 +252,9 @@ jobs:
           RELEASE_NOTE="./build/tmp/release_note.txt"
           mkdir -p "$(dirname "$RELEASE_NOTE")"
           ./gradlew getChangelog --unreleased --no-header --quiet --console=plain --output-file=$RELEASE_NOTE
+          if [ ! -s "$RELEASE_NOTE" ]; then
+            ./gradlew getChangelog --project-version="$VERSION" --no-header --quiet --console=plain --output-file=$RELEASE_NOTE
+          fi
 
           gh release create "v$VERSION" \
             --draft \
