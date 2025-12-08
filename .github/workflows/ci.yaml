@@ -16,14 +16,30 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
-      - name: Verify schema is up to date
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+      - name: Generate and compare schema with upstream bab release
         run: |
+          # Get latest bab release tag
           TAG=$(curl -sf https://api.github.com/repos/bab-sh/bab/releases/latest | jq -r '.tag_name')
-          curl -sf "https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json" -o /tmp/upstream.json
-          diff src/main/resources/schemas/babfile.schema.json /tmp/upstream.json || {
-            echo "::error::Schema outdated. Run: curl -sL https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
+          echo "Latest bab release: $TAG"
+
+          # Clone bab repo at release tag
+          git clone --depth 1 --branch "$TAG" https://github.com/bab-sh/bab.git /tmp/bab
+
+          # Generate schema from source
+          cd /tmp/bab
+          ./scripts/schema.sh
+
+          # Compare with local schema
+          cd -
+          diff src/main/resources/schemas/babfile.schema.json /tmp/bab/schema/babfile.schema.json || {
+            echo "::error::Schema outdated! Local schema doesn't match generated schema from bab ${TAG}"
+            echo "::error::Run: curl -sL https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
             exit 1
           }
+          echo "Schema is up to date with bab ${TAG}"
 
   changelog:
     name: Validate Changelog
@@ -106,6 +122,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
+      contents: write
       checks: write
       pull-requests: write
     steps:

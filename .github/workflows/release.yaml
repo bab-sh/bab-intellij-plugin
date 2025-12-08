@@ -15,16 +15,30 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-go@v5
         with:
-          ref: ${{ github.event.release.tag_name }}
-      - name: Verify schema is up to date
+          go-version: '1.23'
+      - name: Generate and compare schema with upstream bab release
         run: |
+          # Get latest bab release tag
           TAG=$(curl -sf https://api.github.com/repos/bab-sh/bab/releases/latest | jq -r '.tag_name')
-          curl -sf "https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json" -o /tmp/upstream.json
-          diff src/main/resources/schemas/babfile.schema.json /tmp/upstream.json || {
-            echo "::error::Schema outdated. Run: curl -sL https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
+          echo "Latest bab release: $TAG"
+
+          # Clone bab repo at release tag
+          git clone --depth 1 --branch "$TAG" https://github.com/bab-sh/bab.git /tmp/bab
+
+          # Generate schema from source
+          cd /tmp/bab
+          ./scripts/schema.sh
+
+          # Compare with local schema
+          cd -
+          diff src/main/resources/schemas/babfile.schema.json /tmp/bab/schema/babfile.schema.json || {
+            echo "::error::Schema outdated! Local schema doesn't match generated schema from bab ${TAG}"
+            echo "::error::Run: curl -sL https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
             exit 1
           }
+          echo "Schema is up to date with bab ${TAG}"
 
   publish:
     name: Publish Plugin
@@ -33,6 +47,7 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: jlumbroso/free-disk-space@v1.3.1
         with:
@@ -96,6 +111,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*
+
+      - name: Create Pull Request
+        if: github.event.release.body != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          BRANCH="changelog-update-$VERSION"
+          LABEL="release changelog"
+
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+
+          git checkout -b $BRANCH
+          git commit -am "Changelog update - \`$VERSION\`"
+          git push --set-upstream origin $BRANCH
+
+          gh label create "$LABEL" \
+              --description "Pull requests with release changelog update" \
+              || true
+
+          gh pr create \
+              --title "Changelog update - \`$VERSION\`" \
+              --body "Current pull request contains patched \`CHANGELOG.md\` file for the \`$VERSION\` version." \
+              --label "$LABEL" \
+              --head $BRANCH
 
       - name: Create Release Summary
         run: |

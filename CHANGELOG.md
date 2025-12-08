@@ -1,5 +1,7 @@
 # bab Changelog
 
+## [Unreleased]
+
 ## [0.0.7]
 
 ### Added
@@ -89,6 +91,7 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.7...HEAD
 [0.0.7]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.4...v0.0.5
