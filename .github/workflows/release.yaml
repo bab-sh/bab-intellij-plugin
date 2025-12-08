@@ -14,27 +14,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.23'
-      - name: Generate and compare schema with upstream bab release
+      - name: Fetch Sources
+        uses: actions/checkout@v6
+
+      - name: Compare schema with latest bab release
         run: |
           # Get latest bab release tag
           TAG=$(curl -sf https://api.github.com/repos/bab-sh/bab/releases/latest | jq -r '.tag_name')
           echo "Latest bab release: $TAG"
 
-          # Clone bab repo at release tag
-          git clone --depth 1 --branch "$TAG" https://github.com/bab-sh/bab.git /tmp/bab
-
-          # Generate schema from source
-          cd /tmp/bab
-          ./scripts/schema.sh
+          # Download schema from release artifacts
+          curl -sfL "https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json" -o /tmp/babfile.schema.json
 
           # Compare with local schema
-          cd -
-          diff src/main/resources/schemas/babfile.schema.json /tmp/bab/schema/babfile.schema.json || {
-            echo "::error::Schema outdated! Local schema doesn't match generated schema from bab ${TAG}"
+          diff src/main/resources/schemas/babfile.schema.json /tmp/babfile.schema.json || {
+            echo "::error::Schema outdated! Local schema doesn't match schema from bab ${TAG}"
             echo "::error::Run: curl -sL https://raw.githubusercontent.com/bab-sh/bab/${TAG}/schema/babfile.schema.json -o src/main/resources/schemas/babfile.schema.json"
             exit 1
           }
@@ -130,6 +124,7 @@ jobs:
 
           gh label create "$LABEL" \
               --description "Pull requests with release changelog update" \
+              --force \
               || true
 
           gh pr create \
