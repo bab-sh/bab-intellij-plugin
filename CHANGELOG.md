@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Dependency updates
+
 ## [0.0.7]
 
 ### Added
