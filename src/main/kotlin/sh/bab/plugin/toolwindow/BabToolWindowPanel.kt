@@ -3,7 +3,6 @@ package sh.bab.plugin.toolwindow
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -11,15 +10,22 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.TreeSpeedSearch
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.readAction
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.treeStructure.Tree
-import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.tree.TreeUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import sh.bab.plugin.BabBundle
+import sh.bab.plugin.services.BabCoroutineService
 import sh.bab.plugin.services.BabFile
 import sh.bab.plugin.services.BabFileService
+import sh.bab.plugin.services.BabNotificationService
 import sh.bab.plugin.services.BabTask
 import java.awt.Component
 import java.awt.datatransfer.StringSelection
@@ -35,7 +41,10 @@ class BabToolWindowPanel(
     private val tree: Tree
     private val treeModel: DefaultTreeModel
     private val rootNode: DefaultMutableTreeNode = DefaultMutableTreeNode("Bab Tasks")
+    @Volatile
     private var isDisposed = false
+    private val coroutineScope get() = project.service<BabCoroutineService>().scope
+    private val mouseListeners = mutableListOf<java.awt.event.MouseListener>()
 
     companion object {
         private val LOG = Logger.getInstance(BabToolWindowPanel::class.java)
@@ -66,22 +75,26 @@ class BabToolWindowPanel(
             }
         }
 
-        tree.addMouseListener(object : MouseAdapter() {
+        val doubleClickListener = object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
                 if (e.clickCount == 2) {
                     navigateToSelectedTask()
                 }
             }
-        })
+        }
+        tree.addMouseListener(doubleClickListener)
+        mouseListeners.add(doubleClickListener)
 
-        tree.addMouseListener(object : PopupHandler() {
+        val popupListener = object : PopupHandler() {
             override fun invokePopup(comp: Component, x: Int, y: Int) {
                 val actionGroup = createContextMenu()
                 val popupMenu = ActionManager.getInstance()
                     .createActionPopupMenu(ActionPlaces.TOOLWINDOW_POPUP, actionGroup)
                 popupMenu.component.show(comp, x, y)
             }
-        })
+        }
+        tree.addMouseListener(popupListener)
+        mouseListeners.add(popupListener)
 
         return tree
     }
@@ -108,31 +121,40 @@ class BabToolWindowPanel(
     fun refresh() {
         if (project.isDisposed || isDisposed) return
 
-        AppExecutorUtil.getAppExecutorService().execute {
-            if (project.isDisposed || isDisposed) return@execute
+        coroutineScope.launch {
+            if (project.isDisposed || isDisposed) return@launch
 
             try {
                 val babFileService = project.service<BabFileService>()
-                val babfileTree = babFileService.getBabfileTree()
+                val babfileTree = readAction { babFileService.getBabfileTree() }
 
-                ApplicationManager.getApplication().invokeLater {
-                    if (project.isDisposed || isDisposed) return@invokeLater
+                withContext(Dispatchers.EDT) {
+                    if (project.isDisposed || isDisposed) return@withContext
 
                     rootNode.removeAllChildren()
                     if (babfileTree != null) {
                         addBabfileToTree(rootNode, babfileTree)
                     }
                     treeModel.reload()
-                    TreeUtil.expandAll(tree)
+                    TreeUtil.expand(tree, 2)
                 }
             } catch (e: Exception) {
                 LOG.warn("Failed to refresh babfile tree", e)
+                withContext(Dispatchers.EDT) {
+                    if (project.isDisposed || isDisposed) return@withContext
+                    project.service<BabNotificationService>().notifyError(
+                        BabBundle.message("notification.error.parse.failed"),
+                        e.message ?: "Unknown error"
+                    )
+                }
             }
         }
     }
 
     override fun dispose() {
         isDisposed = true
+        mouseListeners.forEach { tree.removeMouseListener(it) }
+        mouseListeners.clear()
     }
 
     private fun addBabfileToTree(
@@ -216,45 +238,41 @@ class BabToolWindowPanel(
         }
     }
 
-    private fun getSelectedTaskNode(): BabTaskNode? {
+    private inline fun <reified T> getSelectedNode(): T? {
         val selectedNode = tree.selectionPath?.lastPathComponent as? DefaultMutableTreeNode
-        return selectedNode?.userObject as? BabTaskNode
-    }
-
-    private fun getSelectedTaskGroupNode(): BabTaskGroupNode? {
-        val selectedNode = tree.selectionPath?.lastPathComponent as? DefaultMutableTreeNode
-        return selectedNode?.userObject as? BabTaskGroupNode
+        return selectedNode?.userObject as? T
     }
 
     private fun canNavigateToSelected(): Boolean {
-        val taskNode = getSelectedTaskNode()
+        val taskNode = getSelectedNode<BabTaskNode>()
         if (taskNode?.psiElement != null) return true
-        val groupNode = getSelectedTaskGroupNode()
+        val groupNode = getSelectedNode<BabTaskGroupNode>()
         return groupNode?.psiElement != null
     }
 
-    private fun navigateToSelectedTask() {
-        val taskNode = getSelectedTaskNode()
-        val groupNode = getSelectedTaskGroupNode()
+    private data class NavigableTask(val file: VirtualFile, val offset: Int)
 
-        val (psiElement, parentFile) = when {
-            taskNode?.psiElement != null -> taskNode.psiElement to taskNode.parentFile
-            groupNode?.psiElement != null -> groupNode.psiElement to groupNode.parentFile
-            else -> return
+    private fun getSelectedNavigable(): NavigableTask? {
+        val selectedNode = tree.selectionPath?.lastPathComponent as? DefaultMutableTreeNode ?: return null
+        return when (val userObject = selectedNode.userObject) {
+            is BabTaskNode -> userObject.psiElement?.let { NavigableTask(userObject.parentFile, it.textOffset) }
+            is BabTaskGroupNode -> userObject.psiElement?.let { NavigableTask(userObject.parentFile, it.textOffset) }
+            else -> null
         }
+    }
 
-        val offset = psiElement!!.textOffset
-        val descriptor = OpenFileDescriptor(project, parentFile, offset)
+    private fun navigateToSelectedTask() {
+        val navigable = getSelectedNavigable() ?: return
+        val descriptor = OpenFileDescriptor(project, navigable.file, navigable.offset)
         FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
     }
 
     private fun getSelectedTaskName(): String? {
-        val taskNode = getSelectedTaskNode()
+        val taskNode = getSelectedNode<BabTaskNode>()
         if (taskNode != null) return taskNode.name
-        val groupNode = getSelectedTaskGroupNode()
+        val groupNode = getSelectedNode<BabTaskGroupNode>()
         return groupNode?.task?.name
     }
-
 
     private inner class RefreshAction : AnAction(
         BabBundle.message("toolwindow.action.refresh"),

@@ -11,6 +11,11 @@
     <resource-bundle>messages.BabBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="Bab Notifications"
+                           displayType="BALLOON"
+                           bundle="messages.BabBundle"
+                           key="notification.group.bab"/>
+
         <fileType
             name="Babfile"
             implementationClass="sh.bab.plugin.filetype.BabFileType"
@@ -23,6 +28,10 @@
         <psi.referenceContributor
             language="yaml"
             implementation="sh.bab.plugin.references.BabTaskReferenceContributor"/>
+
+        <psi.referenceContributor
+            language="yaml"
+            implementation="sh.bab.plugin.references.BabIncludeFileReferenceContributor"/>
 
         <completion.contributor
             language="yaml"
@@ -44,6 +53,25 @@
             anchor="right"
             icon="/icons/bab-toolwindow.svg"
             factoryClass="sh.bab.plugin.toolwindow.BabToolWindowFactory"/>
+
+        <projectService serviceImplementation="sh.bab.plugin.settings.BabSettings"/>
+
+        <projectConfigurable
+            parentId="tools"
+            instance="sh.bab.plugin.settings.BabSettingsConfigurable"
+            id="sh.bab.plugin.settings"
+            displayName="Bab"
+            nonDefaultProject="true"/>
+
+        <configurationType implementation="sh.bab.plugin.run.BabRunConfigurationType"/>
+
+        <runConfigurationProducer implementation="sh.bab.plugin.run.BabRunConfigurationProducer"/>
+
+        <runLineMarkerContributor
+            language="yaml"
+            implementationClass="sh.bab.plugin.run.BabRunLineMarkerContributor"/>
+
+        <postStartupActivity implementation="sh.bab.plugin.BabProjectActivity"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript.JsonSchema">

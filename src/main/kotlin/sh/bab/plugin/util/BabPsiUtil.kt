@@ -10,56 +10,89 @@ import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequenceItem
 
+object YamlKeys {
+    const val TASKS = "tasks"
+    const val DEPS = "deps"
+    const val RUN = "run"
+    const val INCLUDES = "includes"
+    const val BABFILE = "babfile"
+    const val DESC = "desc"
+}
+
 object BabPsiUtil {
 
     private fun isInsideDepsField(element: PsiElement): Boolean {
         var current: PsiElement? = element
         while (current != null) {
             if (current is YAMLSequenceItem) {
-                val sequence = current.parent ?: run { current = current?.parent; continue }
-                val depsKeyValue = sequence.parent as? YAMLKeyValue ?: run { current = current?.parent; continue }
-                if (depsKeyValue.keyText != "deps") { current = current?.parent; continue }
-
-                val taskMapping = depsKeyValue.parent as? YAMLMapping ?: run { current = current?.parent; continue }
-                val taskKeyValue = taskMapping.parent as? YAMLKeyValue ?: run { current = current?.parent; continue }
-                val tasksMapping = taskKeyValue.parent as? YAMLMapping ?: run { current = current?.parent; continue }
-                val tasksKeyValue = tasksMapping.parent as? YAMLKeyValue ?: run { current = current?.parent; continue }
-
-                if (tasksKeyValue.keyText == "tasks") {
-                    return true
-                }
+                if (checkDepsHierarchy(current)) return true
             }
-            current = current?.parent
+            current = current.parent
         }
         return false
+    }
+
+    private fun checkDepsHierarchy(sequenceItem: YAMLSequenceItem): Boolean {
+        val sequence = sequenceItem.parent ?: return false
+        val depsKeyValue = sequence.parent as? YAMLKeyValue ?: return false
+        if (depsKeyValue.keyText != YamlKeys.DEPS) return false
+
+        val taskMapping = depsKeyValue.parent as? YAMLMapping ?: return false
+        val taskKeyValue = taskMapping.parent as? YAMLKeyValue ?: return false
+        val tasksMapping = taskKeyValue.parent as? YAMLMapping ?: return false
+        val tasksKeyValue = tasksMapping.parent as? YAMLKeyValue ?: return false
+
+        return tasksKeyValue.keyText == YamlKeys.TASKS
     }
 
     private fun isInsideRunTaskField(element: PsiElement): Boolean {
         var current: PsiElement? = element
         while (current != null) {
             if (current is YAMLKeyValue && current.keyText == "task") {
-                val mapping = current.parent as? YAMLMapping ?: run { current = current?.parent; continue }
-                val sequenceItem = mapping.parent as? YAMLSequenceItem ?: run { current = current?.parent; continue }
-                val sequence = sequenceItem.parent ?: run { current = current?.parent; continue }
-                val runKeyValue = sequence.parent as? YAMLKeyValue ?: run { current = current?.parent; continue }
-                if (runKeyValue.keyText != "run") { current = current?.parent; continue }
-
-                val taskMapping = runKeyValue.parent as? YAMLMapping ?: run { current = current?.parent; continue }
-                val taskKeyValue = taskMapping.parent as? YAMLKeyValue ?: run { current = current?.parent; continue }
-                val tasksMapping = taskKeyValue.parent as? YAMLMapping ?: run { current = current?.parent; continue }
-                val tasksKeyValue = tasksMapping.parent as? YAMLKeyValue ?: run { current = current?.parent; continue }
-
-                if (tasksKeyValue.keyText == "tasks") {
-                    return true
-                }
+                if (checkRunTaskHierarchy(current)) return true
             }
-            current = current?.parent
+            current = current.parent
         }
         return false
     }
 
+    private fun checkRunTaskHierarchy(taskKeyValue: YAMLKeyValue): Boolean {
+        val mapping = taskKeyValue.parent as? YAMLMapping ?: return false
+        val sequenceItem = mapping.parent as? YAMLSequenceItem ?: return false
+        val sequence = sequenceItem.parent ?: return false
+        val runKeyValue = sequence.parent as? YAMLKeyValue ?: return false
+        if (runKeyValue.keyText != YamlKeys.RUN) return false
+
+        val taskMapping = runKeyValue.parent as? YAMLMapping ?: return false
+        val parentTaskKeyValue = taskMapping.parent as? YAMLKeyValue ?: return false
+        val tasksMapping = parentTaskKeyValue.parent as? YAMLMapping ?: return false
+        val tasksKeyValue = tasksMapping.parent as? YAMLKeyValue ?: return false
+
+        return tasksKeyValue.keyText == YamlKeys.TASKS
+    }
+
     fun isTaskReferenceContext(element: PsiElement): Boolean {
         return isInsideDepsField(element) || isInsideRunTaskField(element)
+    }
+
+    fun isIncludeBabfileContext(element: PsiElement): Boolean {
+        var current: PsiElement? = element
+        while (current != null) {
+            if (current is YAMLKeyValue && current.keyText == YamlKeys.BABFILE) {
+                if (checkIncludeHierarchy(current)) return true
+            }
+            current = current.parent
+        }
+        return false
+    }
+
+    private fun checkIncludeHierarchy(babfileKeyValue: YAMLKeyValue): Boolean {
+        val includeMapping = babfileKeyValue.parent as? YAMLMapping ?: return false
+        val includeKeyValue = includeMapping.parent as? YAMLKeyValue ?: return false
+        val includesMapping = includeKeyValue.parent as? YAMLMapping ?: return false
+        val includesKeyValue = includesMapping.parent as? YAMLKeyValue ?: return false
+
+        return includesKeyValue.keyText == YamlKeys.INCLUDES
     }
 
     fun findCurrentTaskName(element: PsiElement): String? {
@@ -69,7 +102,7 @@ object BabPsiUtil {
                 val grandparent = parent.parent
                 if (grandparent is YAMLMapping) {
                     val greatGrandparent = grandparent.parent
-                    if (greatGrandparent is YAMLKeyValue && greatGrandparent.keyText == "tasks") {
+                    if (greatGrandparent is YAMLKeyValue && greatGrandparent.keyText == YamlKeys.TASKS) {
                         return parent.keyText
                     }
                 }
@@ -82,7 +115,7 @@ object BabPsiUtil {
     private fun getTasksMapping(file: YAMLFile): YAMLMapping? {
         val rootMapping = file.documents.firstOrNull()?.topLevelValue as? YAMLMapping
             ?: return null
-        val tasksKeyValue = rootMapping.keyValues.find { it.keyText == "tasks" }
+        val tasksKeyValue = rootMapping.keyValues.find { it.keyText == YamlKeys.TASKS }
             ?: return null
         return tasksKeyValue.value as? YAMLMapping
     }
@@ -103,7 +136,7 @@ object BabPsiUtil {
     private fun getIncludesMapping(file: YAMLFile): YAMLMapping? {
         val rootMapping = file.documents.firstOrNull()?.topLevelValue as? YAMLMapping
             ?: return null
-        val includesKeyValue = rootMapping.keyValues.find { it.keyText == "includes" }
+        val includesKeyValue = rootMapping.keyValues.find { it.keyText == YamlKeys.INCLUDES }
             ?: return null
         return includesKeyValue.value as? YAMLMapping
     }
@@ -121,7 +154,7 @@ object BabPsiUtil {
         val includesMapping = getIncludesMapping(file) ?: return null
         val includeKeyValue = includesMapping.keyValues.find { it.keyText == includeName } ?: return null
         val includeMapping = includeKeyValue.value as? YAMLMapping ?: return null
-        val babfileValue = includeMapping.keyValues.find { it.keyText == "babfile" }?.value as? YAMLScalar
+        val babfileValue = includeMapping.keyValues.find { it.keyText == YamlKeys.BABFILE }?.value as? YAMLScalar
         return babfileValue?.textValue
     }
 

@@ -1,32 +1,51 @@
-# bab
+# Bab
 
 ![Build](https://github.com/bab-sh/bab-intellij-plugin/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/29264.svg)](https://plugins.jetbrains.com/plugin/29264)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/29264.svg)](https://plugins.jetbrains.com/plugin/29264)
 
 <!-- Plugin description -->
-IntelliJ IDEA plugin for [bab](https://bab.sh) - a simple, cross-platform task runner.
+IntelliJ plugin for [bab](https://bab.sh) - a simple, cross-platform task runner.
 
 ## Features
 
-- File type recognition for `babfile.yml` and `babfile.yaml` (case-insensitive)
-- YAML syntax highlighting for babfiles
-- Schema-based validation with inline errors and warnings
-- Autocompletion for babfile properties (tasks, deps, run, cmd, platforms, includes)
-- Task dependency validation with errors for undefined task references
-- Self-dependency detection (errors when a task depends on itself)
-- Task name autocompletion in `deps` field (excludes current task to prevent circular deps)
-- Ctrl+Click navigation from dependency to task definition
+### Editor Support
+- Syntax highlighting for `babfile.yml` and `babfile.yaml`
+- JSON Schema validation with inline errors and warnings
+- Autocompletion for all babfile properties
+
+### Task Navigation
+- Ctrl+Click navigation from dependency references to task definitions
+- Task name autocompletion in `deps` and `run.task` fields
+- Support for included babfiles with prefixed task references
+
+### Code Inspection
+- Unresolved task reference detection
+- Self-dependency detection
+- Real-time error highlighting
+
+### Run Configuration
+- Run tasks directly from the editor gutter
+- Configurable run configurations with working directory and arguments
+- Dry-run mode support
+
+### Tool Window
+- Hierarchical task browser in the right panel
+- Double-click to navigate to task definition
+- Search and filter tasks
 <!-- Plugin description end -->
 
 ## Installation
 
-- Using the IDE built-in plugin system:
+**From JetBrains Marketplace:**
 
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "bab"</kbd> >
-  <kbd>Install</kbd>
+<kbd>Settings</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > Search for "Bab" > <kbd>Install</kbd>
 
-- Manually:
+**Manual Installation:**
 
-  Download the [latest release](https://github.com/bab-sh/bab-intellij-plugin/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Settings</kbd> > <kbd>Install plugin from disk...</kbd>
+Download the [latest release](https://github.com/bab-sh/bab-intellij-plugin/releases/latest) and install via <kbd>Settings</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install Plugin from Disk...</kbd>
+
+## Requirements
+
+- IntelliJ IDEA 2025.2 or later
+- [bab](https://bab.sh) installed for running tasks
