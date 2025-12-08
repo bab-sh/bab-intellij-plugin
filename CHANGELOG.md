@@ -2,8 +2,6 @@
 
 ## [Unreleased]
 
-## [0.0.8]
-
 ### Added
 
 - Run tasks directly from the editor gutter with line markers
