@@ -51,7 +51,7 @@
         <toolWindow
             id="Bab"
             anchor="right"
-            icon="/icons/bab-toolwindow.svg"
+            icon="/icons/bab.svg"
             factoryClass="sh.bab.plugin.toolwindow.BabToolWindowFactory"/>
 
         <projectService serviceImplementation="sh.bab.plugin.settings.BabSettings"/>
