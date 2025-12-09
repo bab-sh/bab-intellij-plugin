@@ -5,7 +5,7 @@
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/29264.svg)](https://plugins.jetbrains.com/plugin/29264)
 
 <!-- Plugin description -->
-IntelliJ plugin for [bab](https://bab.sh) - a simple, cross-platform task runner.
+IntelliJ plugin for [bab](https://github.com/bab-sh/bab), The modern task runner. Provides syntax highlighting, code completion, and schema validation for Babfiles.
 
 ## Features
 
