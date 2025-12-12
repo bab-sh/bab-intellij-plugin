@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list>
+    <option name="BAB_SECTION_KEYWORD">
+        <value>
+            <option name="FOREGROUND" value="d75faf"/>
+            <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
+    <option name="BAB_TASK_NAME">
+        <value>
+            <option name="FOREGROUND" value="875fd7"/>
+            <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
+    <option name="BAB_PROPERTY_KEY">
+        <value>
+            <option name="FOREGROUND" value="6a6a6a"/>
+        </value>
+    </option>
+    <option name="BAB_TASK_REFERENCE">
+        <value>
+            <option name="FOREGROUND" value="875fd7"/>
+        </value>
+    </option>
+    <option name="BAB_INCLUDE_NAME">
+        <value>
+            <option name="FOREGROUND" value="875fd7"/>
+            <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
+</list>

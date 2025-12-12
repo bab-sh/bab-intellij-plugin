@@ -72,6 +72,18 @@
             implementationClass="sh.bab.plugin.run.BabRunLineMarkerContributor"/>
 
         <postStartupActivity implementation="sh.bab.plugin.BabProjectActivity"/>
+
+        <annotator
+            language="yaml"
+            implementationClass="sh.bab.plugin.highlighting.BabAnnotator"/>
+
+        <colorSettingsPage
+            implementation="sh.bab.plugin.highlighting.BabColorSettingsPage"/>
+
+        <additionalTextAttributes scheme="Darcula" file="colorSchemes/BabDark.xml"/>
+        <additionalTextAttributes scheme="Default" file="colorSchemes/BabLight.xml"/>
+        <additionalTextAttributes scheme="IntelliJ Light" file="colorSchemes/BabLight.xml"/>
+        <additionalTextAttributes scheme="High contrast" file="colorSchemes/BabDark.xml"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
