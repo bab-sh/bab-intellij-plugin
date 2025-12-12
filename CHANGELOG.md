@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.1.0]
+
+### Added
+
+- Custom syntax highlighting for babfile elements with purple/pink color palette
+- Section keywords (`env`, `tasks`, `includes`) highlighted in pink
+- Task names and task references highlighted in purple
+- Property keys (`desc`, `run`, `cmd`, `deps`, `platforms`) highlighted in muted gray
+- Color customization via Settings > Editor > Color Scheme > Bab
+
 ## [0.0.10]
 
 ### Added
@@ -125,7 +135,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.8...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.10...v0.1.0
 [0.0.10]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.7...v0.0.8
