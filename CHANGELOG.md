@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Support for environment variables at global, task, and command levels
+
 ## [0.0.9]
 
 ### Added
