@@ -17,6 +17,8 @@ object YamlKeys {
     const val INCLUDES = "includes"
     const val BABFILE = "babfile"
     const val DESC = "desc"
+    const val LOG = "log"
+    const val LEVEL = "level"
 }
 
 object BabPsiUtil {

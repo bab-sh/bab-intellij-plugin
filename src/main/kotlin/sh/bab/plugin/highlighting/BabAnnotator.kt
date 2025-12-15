@@ -10,6 +10,10 @@ import sh.bab.plugin.filetype.isBabfile
 import sh.bab.plugin.util.BabPsiUtil
 import sh.bab.plugin.util.YamlKeys
 
+private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env")
+private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "platforms")
+private val RUN_ITEM_KEYS = setOf("cmd", "task", "log", "level", "env", "platforms")
+
 class BabAnnotator : Annotator {
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
@@ -94,11 +98,5 @@ class BabAnnotator : Annotator {
         val parent = keyValue.parent as? YAMLMapping ?: return false
         val grandparent = parent.parent as? YAMLKeyValue ?: return false
         return isIncludeNameKey(grandparent)
-    }
-
-    companion object {
-        private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env")
-        private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "platforms")
-        private val RUN_ITEM_KEYS = setOf("cmd", "task", "env", "platforms")
     }
 }
