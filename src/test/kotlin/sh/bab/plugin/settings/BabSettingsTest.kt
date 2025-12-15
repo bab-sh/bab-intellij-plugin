@@ -89,12 +89,13 @@ class BabSettingsTest : BasePlatformTestCase() {
 
     fun testSetDryRun() {
         val settings = BabSettings.getInstance(project)
-        settings.dryRun = true
+        val initialValue = settings.dryRun
 
-        assertTrue(settings.dryRun)
+        settings.dryRun = !initialValue
+        assertNotEquals("Value should have changed", initialValue, settings.dryRun)
 
-        settings.dryRun = false
-        assertFalse(settings.dryRun)
+        settings.dryRun = initialValue
+        assertEquals("Value should be restored", initialValue, settings.dryRun)
     }
 
     fun testGetState() {

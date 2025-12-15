@@ -6,26 +6,56 @@
             <option name="FONT_TYPE" value="1"/>
         </value>
     </option>
+
     <option name="BAB_TASK_NAME">
         <value>
             <option name="FOREGROUND" value="875fd7"/>
             <option name="FONT_TYPE" value="1"/>
         </value>
     </option>
+
+    <option name="BAB_TASK_REFERENCE">
+        <value>
+            <option name="FOREGROUND" value="875fd7"/>
+            <option name="FONT_TYPE" value="2"/>
+        </value>
+    </option>
+
     <option name="BAB_PROPERTY_KEY">
         <value>
             <option name="FOREGROUND" value="6a6a6a"/>
         </value>
     </option>
-    <option name="BAB_TASK_REFERENCE">
-        <value>
-            <option name="FOREGROUND" value="875fd7"/>
-        </value>
-    </option>
+
     <option name="BAB_INCLUDE_NAME">
         <value>
             <option name="FOREGROUND" value="875fd7"/>
             <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
+
+    <option name="BAB_VARIABLE_INTERPOLATION">
+        <value>
+            <option name="FOREGROUND" value="008700"/>
+        </value>
+    </option>
+
+    <option name="BAB_VARIABLE_NAME">
+        <value>
+            <option name="FOREGROUND" value="0087af"/>
+        </value>
+    </option>
+
+    <option name="BAB_ENV_VAR_NAME">
+        <value>
+            <option name="FOREGROUND" value="0087af"/>
+        </value>
+    </option>
+
+    <option name="BAB_LOG_LEVEL">
+        <value>
+            <option name="FOREGROUND" value="af8700"/>
+            <option name="FONT_TYPE" value="2"/>
         </value>
     </option>
 </list>

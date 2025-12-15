@@ -2,6 +2,7 @@ package sh.bab.plugin.run
 
 import com.intellij.execution.configurations.ConfigurationType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.Assert.assertNotEquals
 import sh.bab.plugin.settings.BabSettings
 
 class BabRunProfileStateTest : BasePlatformTestCase() {
@@ -10,7 +11,7 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
         return ConfigurationType.CONFIGURATION_TYPE_EP.findExtensionOrFail(BabRunConfigurationType::class.java)
     }
 
-    private fun createConfiguration(taskName: String = "build"): BabRunConfiguration {
+    private fun createConfiguration(taskName: String): BabRunConfiguration {
         val type = getConfigurationType()
         val factory = type.configurationFactories.first()
         val config = BabRunConfiguration(project, factory, "Test Config")
@@ -84,12 +85,13 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
 
     fun testSettingsAffectBehavior() {
         val settings = BabSettings.getInstance(project)
+        val initialDryRun = settings.dryRun
 
-        settings.dryRun = true
-        assertTrue("Dry run should be enabled", settings.dryRun)
+        settings.dryRun = !initialDryRun
+        assertNotEquals("Dry run should have toggled", initialDryRun, settings.dryRun)
 
-        settings.dryRun = false
-        assertFalse("Dry run should be disabled", settings.dryRun)
+        settings.dryRun = initialDryRun
+        assertEquals("Dry run should be restored", initialDryRun, settings.dryRun)
     }
 
     fun testSettingsAdditionalArgs() {
@@ -132,28 +134,21 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
         val current = StringBuilder()
         var inSingleQuote = false
         var inDoubleQuote = false
-        var i = 0
 
-        while (i < args.length) {
-            val c = args[i]
-            when {
-                c == '\'' && !inDoubleQuote -> {
-                    inSingleQuote = !inSingleQuote
-                }
-                c == '"' && !inSingleQuote -> {
-                    inDoubleQuote = !inDoubleQuote
-                }
-                c == ' ' && !inSingleQuote && !inDoubleQuote -> {
+        for (c in args) {
+            when (c) {
+                '\'' -> if (!inDoubleQuote) inSingleQuote = !inSingleQuote else current.append(c)
+                '"' -> if (!inSingleQuote) inDoubleQuote = !inDoubleQuote else current.append(c)
+                ' ' -> if (!inSingleQuote && !inDoubleQuote) {
                     if (current.isNotEmpty()) {
                         result.add(current.toString())
                         current.clear()
                     }
-                }
-                else -> {
+                } else {
                     current.append(c)
                 }
+                else -> current.append(c)
             }
-            i++
         }
 
         if (current.isNotEmpty()) {

@@ -17,11 +17,16 @@ object YamlKeys {
     const val INCLUDES = "includes"
     const val BABFILE = "babfile"
     const val DESC = "desc"
-    const val LOG = "log"
-    const val LEVEL = "level"
 }
 
 object BabPsiUtil {
+
+    private fun isUnderTasksKey(mapping: YAMLMapping): Boolean {
+        val taskKeyValue = mapping.parent as? YAMLKeyValue ?: return false
+        val tasksMapping = taskKeyValue.parent as? YAMLMapping ?: return false
+        val tasksKeyValue = tasksMapping.parent as? YAMLKeyValue ?: return false
+        return tasksKeyValue.keyText == YamlKeys.TASKS
+    }
 
     private fun isInsideDepsField(element: PsiElement): Boolean {
         var current: PsiElement? = element
@@ -40,11 +45,7 @@ object BabPsiUtil {
         if (depsKeyValue.keyText != YamlKeys.DEPS) return false
 
         val taskMapping = depsKeyValue.parent as? YAMLMapping ?: return false
-        val taskKeyValue = taskMapping.parent as? YAMLKeyValue ?: return false
-        val tasksMapping = taskKeyValue.parent as? YAMLMapping ?: return false
-        val tasksKeyValue = tasksMapping.parent as? YAMLKeyValue ?: return false
-
-        return tasksKeyValue.keyText == YamlKeys.TASKS
+        return isUnderTasksKey(taskMapping)
     }
 
     private fun isInsideRunTaskField(element: PsiElement): Boolean {
@@ -66,11 +67,7 @@ object BabPsiUtil {
         if (runKeyValue.keyText != YamlKeys.RUN) return false
 
         val taskMapping = runKeyValue.parent as? YAMLMapping ?: return false
-        val parentTaskKeyValue = taskMapping.parent as? YAMLKeyValue ?: return false
-        val tasksMapping = parentTaskKeyValue.parent as? YAMLMapping ?: return false
-        val tasksKeyValue = tasksMapping.parent as? YAMLKeyValue ?: return false
-
-        return tasksKeyValue.keyText == YamlKeys.TASKS
+        return isUnderTasksKey(taskMapping)
     }
 
     fun isTaskReferenceContext(element: PsiElement): Boolean {

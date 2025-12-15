@@ -27,9 +27,9 @@ class BabRunConfigurationTest : BasePlatformTestCase() {
         assertTrue("Should have at least one factory", type.configurationFactories.isNotEmpty())
     }
 
-    fun testGetInstance() {
-        val instance = BabRunConfigurationType.getInstance()
-        assertNotNull("getInstance should return type", instance)
+    fun testGetBabRunConfigurationType() {
+        val instance = getBabRunConfigurationType()
+        assertNotNull("getBabRunConfigurationType should return type", instance)
         assertEquals("Should return same type", BabRunConfigurationType.ID, instance.id)
     }
 

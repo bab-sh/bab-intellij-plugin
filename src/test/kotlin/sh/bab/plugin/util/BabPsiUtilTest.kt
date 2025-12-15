@@ -2,7 +2,6 @@ package sh.bab.plugin.util
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.jetbrains.yaml.psi.YAMLFile
-import org.jetbrains.yaml.psi.YAMLScalar
 
 class BabPsiUtilTest : BasePlatformTestCase() {
 

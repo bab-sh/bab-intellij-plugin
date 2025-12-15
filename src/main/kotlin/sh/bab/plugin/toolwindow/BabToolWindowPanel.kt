@@ -163,7 +163,6 @@ class BabToolWindowPanel(
         includePrefix: String? = null
     ) {
         val fileNode = BabFileNode(
-            file = babFile.file,
             relativePath = babFile.relativePath,
             includePrefix = includePrefix
         )
@@ -183,7 +182,7 @@ class BabToolWindowPanel(
     private fun addTasksHierarchically(
         parentNode: DefaultMutableTreeNode,
         tasks: List<BabTask>,
-        parentFile: com.intellij.openapi.vfs.VirtualFile
+        parentFile: VirtualFile
     ) {
         val nodeMap = mutableMapOf<String, DefaultMutableTreeNode>()
         val sortedTasks = tasks.sortedBy { it.name }

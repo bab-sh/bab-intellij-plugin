@@ -1,7 +1,6 @@
 package sh.bab.plugin.references
 
 import com.intellij.psi.PsiPolyVariantReference
-import com.intellij.psi.PsiReference
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.jetbrains.yaml.psi.YAMLKeyValue
 

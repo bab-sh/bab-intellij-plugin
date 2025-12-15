@@ -20,7 +20,7 @@ fun isBabfileName(fileName: String): Boolean {
     return BABFILE_PATTERN.matches(fileName)
 }
 
-class BabFileType private constructor() : LanguageFileType(YAMLLanguage.INSTANCE) {
+object BabFileType : LanguageFileType(YAMLLanguage.INSTANCE) {
 
     override fun getName(): String = "Babfile"
 
@@ -29,9 +29,4 @@ class BabFileType private constructor() : LanguageFileType(YAMLLanguage.INSTANCE
     override fun getDefaultExtension(): String = "yml"
 
     override fun getIcon(): Icon = BabIcons.FileType
-
-    companion object {
-        @JvmField
-        val INSTANCE = BabFileType()
-    }
 }

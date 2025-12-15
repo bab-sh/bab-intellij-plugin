@@ -15,14 +15,30 @@ object BabHighlightingColors {
         createTextAttributesKey("BAB_TASK_NAME", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION)
 
     @JvmField
-    val PROPERTY_KEY: TextAttributesKey =
-        createTextAttributesKey("BAB_PROPERTY_KEY", DefaultLanguageHighlighterColors.METADATA)
-
-    @JvmField
     val TASK_REFERENCE: TextAttributesKey =
         createTextAttributesKey("BAB_TASK_REFERENCE", DefaultLanguageHighlighterColors.FUNCTION_CALL)
 
     @JvmField
+    val PROPERTY_KEY: TextAttributesKey =
+        createTextAttributesKey("BAB_PROPERTY_KEY", DefaultLanguageHighlighterColors.METADATA)
+
+    @JvmField
     val INCLUDE_NAME: TextAttributesKey =
         createTextAttributesKey("BAB_INCLUDE_NAME", DefaultLanguageHighlighterColors.CONSTANT)
+
+    @JvmField
+    val VARIABLE_INTERPOLATION: TextAttributesKey =
+        createTextAttributesKey("BAB_VARIABLE_INTERPOLATION", DefaultLanguageHighlighterColors.STRING)
+
+    @JvmField
+    val VARIABLE_NAME: TextAttributesKey =
+        createTextAttributesKey("BAB_VARIABLE_NAME", DefaultLanguageHighlighterColors.INSTANCE_FIELD)
+
+    @JvmField
+    val ENV_VAR_NAME: TextAttributesKey =
+        createTextAttributesKey("BAB_ENV_VAR_NAME", DefaultLanguageHighlighterColors.STATIC_FIELD)
+
+    @JvmField
+    val LOG_LEVEL: TextAttributesKey =
+        createTextAttributesKey("BAB_LOG_LEVEL", DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL)
 }

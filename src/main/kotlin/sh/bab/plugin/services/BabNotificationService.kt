@@ -21,16 +21,4 @@ class BabNotificationService(private val project: Project) {
             .createNotification(title, content, NotificationType.ERROR)
             .notify(project)
     }
-
-    fun notifyWarning(title: String, content: String) {
-        notificationGroup
-            .createNotification(title, content, NotificationType.WARNING)
-            .notify(project)
-    }
-
-    fun notifyInfo(title: String, content: String) {
-        notificationGroup
-            .createNotification(title, content, NotificationType.INFORMATION)
-            .notify(project)
-    }
 }

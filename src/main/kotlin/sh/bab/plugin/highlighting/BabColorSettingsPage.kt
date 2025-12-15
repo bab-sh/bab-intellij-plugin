@@ -11,43 +11,65 @@ import sh.bab.plugin.BabBundle
 import sh.bab.plugin.icons.BabIcons
 import javax.swing.Icon
 
-class BabColorSettingsPage : ColorSettingsPage {
+private val DESCRIPTORS = arrayOf(
+    AttributesDescriptor(
+        BabBundle.message("color.settings.structure.section.keyword"),
+        BabHighlightingColors.SECTION_KEYWORD
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.tasks.name"),
+        BabHighlightingColors.TASK_NAME
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.tasks.reference"),
+        BabHighlightingColors.TASK_REFERENCE
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.properties.key"),
+        BabHighlightingColors.PROPERTY_KEY
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.includes.name"),
+        BabHighlightingColors.INCLUDE_NAME
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.variables.interpolation"),
+        BabHighlightingColors.VARIABLE_INTERPOLATION
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.variables.name"),
+        BabHighlightingColors.VARIABLE_NAME
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.env.name"),
+        BabHighlightingColors.ENV_VAR_NAME
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.log.level"),
+        BabHighlightingColors.LOG_LEVEL
+    )
+)
 
-    override fun getIcon(): Icon = BabIcons.FileType
+private val TAG_MAP = mapOf(
+    "section" to BabHighlightingColors.SECTION_KEYWORD,
+    "task" to BabHighlightingColors.TASK_NAME,
+    "ref" to BabHighlightingColors.TASK_REFERENCE,
+    "prop" to BabHighlightingColors.PROPERTY_KEY,
+    "inc" to BabHighlightingColors.INCLUDE_NAME,
+    "interp" to BabHighlightingColors.VARIABLE_INTERPOLATION,
+    "var" to BabHighlightingColors.VARIABLE_NAME,
+    "env" to BabHighlightingColors.ENV_VAR_NAME,
+    "level" to BabHighlightingColors.LOG_LEVEL
+)
 
-    override fun getHighlighter(): SyntaxHighlighter =
-        SyntaxHighlighterFactory.getSyntaxHighlighter(YAMLLanguage.INSTANCE, null, null)!!
+private const val DEMO_TEXT = """
+<section>vars</section>:
+  <var>app_name</var>: myapp
+  <var>version</var>: "1.0.0"
 
-    override fun getDemoText(): String = DEMO_TEXT
-
-    override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey> = TAG_MAP
-
-    override fun getAttributeDescriptors(): Array<AttributesDescriptor> = DESCRIPTORS
-
-    override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
-
-    override fun getDisplayName(): String = BabBundle.message("color.settings.display.name")
-
-    companion object {
-        private val DESCRIPTORS = arrayOf(
-            AttributesDescriptor(BabBundle.message("color.settings.section.keyword"), BabHighlightingColors.SECTION_KEYWORD),
-            AttributesDescriptor(BabBundle.message("color.settings.task.name"), BabHighlightingColors.TASK_NAME),
-            AttributesDescriptor(BabBundle.message("color.settings.property.key"), BabHighlightingColors.PROPERTY_KEY),
-            AttributesDescriptor(BabBundle.message("color.settings.task.reference"), BabHighlightingColors.TASK_REFERENCE),
-            AttributesDescriptor(BabBundle.message("color.settings.include.name"), BabHighlightingColors.INCLUDE_NAME)
-        )
-
-        private val TAG_MAP = mapOf(
-            "section" to BabHighlightingColors.SECTION_KEYWORD,
-            "task" to BabHighlightingColors.TASK_NAME,
-            "prop" to BabHighlightingColors.PROPERTY_KEY,
-            "ref" to BabHighlightingColors.TASK_REFERENCE,
-            "inc" to BabHighlightingColors.INCLUDE_NAME
-        )
-
-        private val DEMO_TEXT = """
 <section>env</section>:
-  NODE_ENV: production
+  <env>APP_NAME</env>: <interp>${"$"}{{ app_name }}</interp>
+  <env>NODE_ENV</env>: production
 
 <section>includes</section>:
   <inc>utils</inc>:
@@ -62,10 +84,32 @@ class BabColorSettingsPage : ColorSettingsPage {
   <task>build</task>:
     <prop>desc</prop>: Build for production
     <prop>deps</prop>: [<ref>setup</ref>]
+    <prop>vars</prop>:
+      <var>target</var>: release
+    <prop>env</prop>:
+      <env>BUILD_TARGET</env>: <interp>${"$"}{{ target }}</interp>
     <prop>run</prop>:
+      - <prop>log</prop>: Building <interp>${"$"}{{ app_name }}</interp> v<interp>${"$"}{{ version }}</interp>
+        <prop>level</prop>: <level>info</level>
       - <prop>task</prop>: <ref>lint</ref>
-      - <prop>cmd</prop>: npm run build
+      - <prop>cmd</prop>: go build -o ./build/<interp>${"$"}{{ app_name }}</interp>
         <prop>platforms</prop>: [linux, darwin]
-""".trimIndent()
-    }
+"""
+
+class BabColorSettingsPage : ColorSettingsPage {
+
+    override fun getIcon(): Icon = BabIcons.FileType
+
+    override fun getHighlighter(): SyntaxHighlighter =
+        SyntaxHighlighterFactory.getSyntaxHighlighter(YAMLLanguage.INSTANCE, null, null)!!
+
+    override fun getDemoText(): String = DEMO_TEXT.trimIndent()
+
+    override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey> = TAG_MAP
+
+    override fun getAttributeDescriptors(): Array<AttributesDescriptor> = DESCRIPTORS
+
+    override fun getColorDescriptors(): Array<ColorDescriptor> = ColorDescriptor.EMPTY_ARRAY
+
+    override fun getDisplayName(): String = BabBundle.message("color.settings.display.name")
 }

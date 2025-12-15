@@ -1,7 +1,5 @@
 package sh.bab.plugin.inspections
 
-import com.intellij.codeInspection.InspectionManager
-import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class BabUnresolvedTaskReferenceInspectionTest : BasePlatformTestCase() {

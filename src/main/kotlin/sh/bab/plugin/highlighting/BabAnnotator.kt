@@ -4,15 +4,18 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.yaml.psi.*
 import sh.bab.plugin.filetype.isBabfile
 import sh.bab.plugin.util.BabPsiUtil
 import sh.bab.plugin.util.YamlKeys
 
-private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env")
-private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "platforms")
+private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env", "vars")
+private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "vars", "platforms")
 private val RUN_ITEM_KEYS = setOf("cmd", "task", "log", "level", "env", "platforms")
+private val LOG_LEVELS = setOf("debug", "info", "warn", "error")
+private val INTERPOLATION_PATTERN = Regex("""\$\{\{\s*([^}]+)\s*}}""")
 
 class BabAnnotator : Annotator {
 
@@ -48,6 +51,19 @@ class BabAnnotator : Annotator {
 
             isIncludePropertyKey(keyValue) && keyText == YamlKeys.BABFILE ->
                 highlight(key, holder, BabHighlightingColors.PROPERTY_KEY)
+
+            isVariableNameKey(keyValue) ->
+                highlight(key, holder, BabHighlightingColors.VARIABLE_NAME)
+
+            isEnvVarNameKey(keyValue) ->
+                highlight(key, holder, BabHighlightingColors.ENV_VAR_NAME)
+        }
+
+        if (isLogLevelKey(keyValue)) {
+            val value = keyValue.value
+            if (value is YAMLScalar && value.textValue.lowercase() in LOG_LEVELS) {
+                highlight(value, holder, BabHighlightingColors.LOG_LEVEL)
+            }
         }
     }
 
@@ -55,11 +71,25 @@ class BabAnnotator : Annotator {
         if (BabPsiUtil.isTaskReferenceContext(scalar)) {
             highlight(scalar, holder, BabHighlightingColors.TASK_REFERENCE)
         }
+
+        val text = scalar.text
+        val startOffset = scalar.textRange.startOffset
+        INTERPOLATION_PATTERN.findAll(text).forEach { match ->
+            val range = TextRange(startOffset + match.range.first, startOffset + match.range.last + 1)
+            highlightRange(range, holder, BabHighlightingColors.VARIABLE_INTERPOLATION)
+        }
     }
 
     private fun highlight(element: PsiElement, holder: AnnotationHolder, key: TextAttributesKey) {
         holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
             .range(element.textRange)
+            .textAttributes(key)
+            .create()
+    }
+
+    private fun highlightRange(range: TextRange, holder: AnnotationHolder, key: TextAttributesKey) {
+        holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+            .range(range)
             .textAttributes(key)
             .create()
     }
@@ -98,5 +128,25 @@ class BabAnnotator : Annotator {
         val parent = keyValue.parent as? YAMLMapping ?: return false
         val grandparent = parent.parent as? YAMLKeyValue ?: return false
         return isIncludeNameKey(grandparent)
+    }
+
+    private fun isVariableNameKey(keyValue: YAMLKeyValue): Boolean {
+        val parent = keyValue.parent as? YAMLMapping ?: return false
+        val grandparent = parent.parent as? YAMLKeyValue ?: return false
+
+        return grandparent.keyText == "vars" &&
+            (isRootLevelKey(grandparent) || isTaskPropertyKey(grandparent))
+    }
+
+    private fun isEnvVarNameKey(keyValue: YAMLKeyValue): Boolean {
+        val parent = keyValue.parent as? YAMLMapping ?: return false
+        val grandparent = parent.parent as? YAMLKeyValue ?: return false
+
+        return grandparent.keyText == "env" &&
+            (isRootLevelKey(grandparent) || isTaskPropertyKey(grandparent) || isRunItemPropertyKey(grandparent))
+    }
+
+    private fun isLogLevelKey(keyValue: YAMLKeyValue): Boolean {
+        return keyValue.keyText == "level" && isRunItemPropertyKey(keyValue)
     }
 }

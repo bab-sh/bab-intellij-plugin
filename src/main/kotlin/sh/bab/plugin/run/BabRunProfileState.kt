@@ -58,28 +58,21 @@ class BabRunProfileState(
         val current = StringBuilder()
         var inSingleQuote = false
         var inDoubleQuote = false
-        var i = 0
 
-        while (i < args.length) {
-            val c = args[i]
-            when {
-                c == '\'' && !inDoubleQuote -> {
-                    inSingleQuote = !inSingleQuote
-                }
-                c == '"' && !inSingleQuote -> {
-                    inDoubleQuote = !inDoubleQuote
-                }
-                c == ' ' && !inSingleQuote && !inDoubleQuote -> {
+        for (c in args) {
+            when (c) {
+                '\'' -> if (!inDoubleQuote) inSingleQuote = !inSingleQuote else current.append(c)
+                '"' -> if (!inSingleQuote) inDoubleQuote = !inDoubleQuote else current.append(c)
+                ' ' -> if (!inSingleQuote && !inDoubleQuote) {
                     if (current.isNotEmpty()) {
                         result.add(current.toString())
                         current.clear()
                     }
-                }
-                else -> {
+                } else {
                     current.append(c)
                 }
+                else -> current.append(c)
             }
-            i++
         }
 
         if (current.isNotEmpty()) {

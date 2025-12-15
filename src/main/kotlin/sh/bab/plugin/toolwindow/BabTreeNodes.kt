@@ -8,7 +8,6 @@ sealed class BabTreeNode {
 }
 
 data class BabFileNode(
-    val file: VirtualFile,
     val relativePath: String,
     val includePrefix: String? = null
 ) : BabTreeNode() {

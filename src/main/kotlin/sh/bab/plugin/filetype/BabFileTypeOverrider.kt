@@ -8,7 +8,7 @@ class BabFileTypeOverrider : FileTypeOverrider {
 
     override fun getOverriddenFileType(file: VirtualFile): FileType? {
         return if (isBabfile(file)) {
-            BabFileType.INSTANCE
+            BabFileType
         } else {
             null
         }

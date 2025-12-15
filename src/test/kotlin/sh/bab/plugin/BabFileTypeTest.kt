@@ -8,32 +8,32 @@ class BabFileTypeTest : BasePlatformTestCase() {
 
     fun testBabFileTypeRecognition() {
         val psiFile = myFixture.configureByText("babfile.yml", "tasks:\n  build:\n    run:\n      - cmd: echo hello")
-        assertEquals(BabFileType.INSTANCE, psiFile.virtualFile.fileType)
+        assertEquals(BabFileType, psiFile.virtualFile.fileType)
     }
 
     fun testBabFileTypeYamlExtension() {
         val psiFile = myFixture.configureByText("babfile.yaml", "tasks:\n  test:\n    run:\n      - cmd: echo test")
-        assertEquals(BabFileType.INSTANCE, psiFile.virtualFile.fileType)
+        assertEquals(BabFileType, psiFile.virtualFile.fileType)
     }
 
     fun testBabFileTypeCaseInsensitive() {
         val psiFile = myFixture.configureByText("Babfile.yml", "tasks:\n  deploy:\n    run:\n      - cmd: echo deploy")
-        assertEquals(BabFileType.INSTANCE, psiFile.virtualFile.fileType)
+        assertEquals(BabFileType, psiFile.virtualFile.fileType)
     }
 
     fun testBabFileTypeWithMiddlePart() {
         val psiFile = myFixture.configureByText("babfile.dev.yml", "tasks:\n  dev:\n    run:\n      - cmd: echo dev")
-        assertEquals(BabFileType.INSTANCE, psiFile.virtualFile.fileType)
+        assertEquals(BabFileType, psiFile.virtualFile.fileType)
     }
 
     fun testBabFileTypeWithMiddlePartYaml() {
         val psiFile = myFixture.configureByText("babfile.prod.yaml", "tasks:\n  prod:\n    run:\n      - cmd: echo prod")
-        assertEquals(BabFileType.INSTANCE, psiFile.virtualFile.fileType)
+        assertEquals(BabFileType, psiFile.virtualFile.fileType)
     }
 
     fun testBabFileTypeWithMiddlePartCaseInsensitive() {
         val psiFile = myFixture.configureByText("Babfile.Local.yml", "tasks:\n  local:\n    run:\n      - cmd: echo local")
-        assertEquals(BabFileType.INSTANCE, psiFile.virtualFile.fileType)
+        assertEquals(BabFileType, psiFile.virtualFile.fileType)
     }
 
     fun testIsBabfileNamePatterns() {
@@ -57,10 +57,10 @@ class BabFileTypeTest : BasePlatformTestCase() {
     }
 
     fun testBabFileTypeName() {
-        assertEquals("Babfile", BabFileType.INSTANCE.name)
+        assertEquals("Babfile", BabFileType.name)
     }
 
     fun testBabFileTypeDefaultExtension() {
-        assertEquals("yml", BabFileType.INSTANCE.defaultExtension)
+        assertEquals("yml", BabFileType.defaultExtension)
     }
 }

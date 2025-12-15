@@ -14,7 +14,7 @@ import sh.bab.plugin.util.BabPsiUtil
 class BabRunConfigurationProducer : LazyRunConfigurationProducer<BabRunConfiguration>() {
 
     override fun getConfigurationFactory(): ConfigurationFactory =
-        BabRunConfigurationType.getInstance().configurationFactories.firstOrNull()
+        getBabRunConfigurationType().configurationFactories.firstOrNull()
             ?: error("No configuration factory found for BabRunConfigurationType")
 
     override fun createConfigurationFromContext(context: ConfigurationContext): ConfigurationFromContext? {
@@ -34,14 +34,7 @@ class BabRunConfigurationProducer : LazyRunConfigurationProducer<BabRunConfigura
         context: ConfigurationContext,
         sourceElement: Ref<PsiElement>
     ): Boolean {
-        val element = context.psiLocation ?: return false
-        val file = element.containingFile?.virtualFile ?: return false
-
-        if (!isBabfile(file)) return false
-
-        val localTaskName = BabPsiUtil.findCurrentTaskName(element) ?: return false
-        val babFileService = context.project.service<BabFileService>()
-        val fullTaskName = babFileService.getFullTaskName(file, localTaskName) ?: localTaskName
+        val fullTaskName = resolveTaskName(context) ?: return false
 
         configuration.taskName = fullTaskName
         configuration.name = fullTaskName.split(":").last()
@@ -53,15 +46,19 @@ class BabRunConfigurationProducer : LazyRunConfigurationProducer<BabRunConfigura
         configuration: BabRunConfiguration,
         context: ConfigurationContext
     ): Boolean {
-        val element = context.psiLocation ?: return false
-        val file = element.containingFile?.virtualFile ?: return false
-
-        if (!isBabfile(file)) return false
-
-        val localTaskName = BabPsiUtil.findCurrentTaskName(element) ?: return false
-        val babFileService = context.project.service<BabFileService>()
-        val fullTaskName = babFileService.getFullTaskName(file, localTaskName) ?: localTaskName
-
+        val fullTaskName = resolveTaskName(context) ?: return false
         return configuration.taskName == fullTaskName
+    }
+
+    private fun resolveTaskName(context: ConfigurationContext): String? {
+        val element = context.psiLocation ?: return null
+        val file = element.containingFile?.virtualFile ?: return null
+
+        if (!isBabfile(file)) return null
+
+        val localTaskName = BabPsiUtil.findCurrentTaskName(element) ?: return null
+        val babFileService = context.project.service<BabFileService>()
+
+        return babFileService.getFullTaskName(file, localTaskName) ?: localTaskName
     }
 }
