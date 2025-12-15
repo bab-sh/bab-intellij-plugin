@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Added
+
+- Support for `log` action type with `log` message and `level` (debug, info, warn, error) properties
+- Syntax highlighting for `log` and `level` keys in run actions
+
+### Fixed
+
+- Fixed companion object deprecation warning
+
+### Changed
+
+- Updated Kotlin dependencies
+- Updated Qodana to latest version
+- Updated GitHub Actions dependencies
+
 ## [0.1.0]
 
 ### Added
@@ -135,7 +152,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.10...v0.1.0
 [0.0.10]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.8...v0.0.9
