@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.1.2]
+
+### Added
+
+- Syntax highlighting for variable interpolation (`${...}`)
+- Syntax highlighting for variable names and environment variable names
+- Syntax highlighting for log levels in run actions
+
+### Changed
+
+- Refactored BabFileType to use Kotlin object declaration
+- Improved run configuration type access and argument parsing
+- Updated color schemes to support new highlighting features
+- Removed unused notification methods
+
 ## [0.1.1]
 
 ### Added
@@ -152,7 +167,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.10...v0.1.0
 [0.0.10]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.9...v0.0.10
