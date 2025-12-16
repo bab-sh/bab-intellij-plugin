@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.1.3]
+
+### Added
+
+- Support for `silent` option at global, task, and command levels (suppresses command prompt display)
+- Support for `output` option at global, task, and command levels (controls stdout/stderr display)
+- Updated JSON schema and syntax highlighting for new options
+
 ## [0.1.2]
 
 ### Added
@@ -167,7 +175,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.0.10...v0.1.0

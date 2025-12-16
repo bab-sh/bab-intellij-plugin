@@ -11,9 +11,9 @@ import sh.bab.plugin.filetype.isBabfile
 import sh.bab.plugin.util.BabPsiUtil
 import sh.bab.plugin.util.YamlKeys
 
-private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env", "vars")
-private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "vars", "platforms")
-private val RUN_ITEM_KEYS = setOf("cmd", "task", "log", "level", "env", "platforms")
+private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env", "vars", "silent", "output")
+private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "vars", "platforms", "silent", "output")
+private val RUN_ITEM_KEYS = setOf("cmd", "task", "log", "level", "env", "platforms", "silent", "output")
 private val LOG_LEVELS = setOf("debug", "info", "warn", "error")
 private val INTERPOLATION_PATTERN = Regex("""\$\{\{\s*([^}]+)\s*}}""")
 

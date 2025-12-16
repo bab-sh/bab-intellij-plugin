@@ -51,6 +51,14 @@
           "type": "object",
           "description": "Environment variables as key-value pairs"
         },
+        "silent": {
+          "type": "boolean",
+          "description": "Suppress command execution output (e.g., '$ go mod download')"
+        },
+        "output": {
+          "type": "boolean",
+          "description": "Show process output (stdout/stderr). Defaults to true."
+        },
         "deps": {
           "items": {
             "type": "string",
@@ -78,6 +86,14 @@
                     "type": "object",
                     "description": "Environment variables as key-value pairs"
                   },
+                  "silent": {
+                    "type": "boolean",
+                    "description": "Suppress command execution output (e.g., '$ go mod download')"
+                  },
+                  "output": {
+                    "type": "boolean",
+                    "description": "Show process output (stdout/stderr). Defaults to true."
+                  },
                   "platforms": {
                     "items": {
                       "$ref": "#/$defs/Platform"
@@ -101,6 +117,14 @@
                     "minLength": 1,
                     "pattern": "^[a-zA-Z0-9_-]+(:[a-zA-Z0-9_-]+)*$",
                     "description": "Task reference"
+                  },
+                  "silent": {
+                    "type": "boolean",
+                    "description": "Suppress command execution output (e.g., '$ go mod download')"
+                  },
+                  "output": {
+                    "type": "boolean",
+                    "description": "Show process output (stdout/stderr). Defaults to true."
                   },
                   "platforms": {
                     "items": {
@@ -187,6 +211,14 @@
       },
       "type": "object",
       "description": "Environment variables as key-value pairs"
+    },
+    "silent": {
+      "type": "boolean",
+      "description": "Suppress command execution output (e.g., '$ go mod download')"
+    },
+    "output": {
+      "type": "boolean",
+      "description": "Show process output (stdout/stderr). Defaults to true."
     },
     "includes": {
       "additionalProperties": {
