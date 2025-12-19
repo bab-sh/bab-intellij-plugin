@@ -13,8 +13,13 @@ import sh.bab.plugin.util.YamlKeys
 
 private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env", "vars", "silent", "output")
 private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "vars", "platforms", "silent", "output")
-private val RUN_ITEM_KEYS = setOf("cmd", "task", "log", "level", "env", "platforms", "silent", "output")
+private val RUN_ITEM_KEYS = setOf(
+    "cmd", "task", "log", "level", "env", "platforms", "silent", "output",
+    "prompt", "type", "message", "default", "defaults", "options",
+    "placeholder", "validate", "min", "max", "confirm"
+)
 private val LOG_LEVELS = setOf("debug", "info", "warn", "error")
+private val PROMPT_TYPES = setOf("confirm", "input", "select", "multiselect", "password", "number")
 private val INTERPOLATION_PATTERN = Regex("""\$\{\{\s*([^}]+)\s*}}""")
 
 class BabAnnotator : Annotator {
@@ -63,6 +68,13 @@ class BabAnnotator : Annotator {
             val value = keyValue.value
             if (value is YAMLScalar && value.textValue.lowercase() in LOG_LEVELS) {
                 highlight(value, holder, BabHighlightingColors.LOG_LEVEL)
+            }
+        }
+
+        if (isPromptTypeKey(keyValue)) {
+            val value = keyValue.value
+            if (value is YAMLScalar && value.textValue.lowercase() in PROMPT_TYPES) {
+                highlight(value, holder, BabHighlightingColors.PROMPT_TYPE)
             }
         }
     }
@@ -148,5 +160,9 @@ class BabAnnotator : Annotator {
 
     private fun isLogLevelKey(keyValue: YAMLKeyValue): Boolean {
         return keyValue.keyText == "level" && isRunItemPropertyKey(keyValue)
+    }
+
+    private fun isPromptTypeKey(keyValue: YAMLKeyValue): Boolean {
+        return keyValue.keyText == "type" && isRunItemPropertyKey(keyValue)
     }
 }

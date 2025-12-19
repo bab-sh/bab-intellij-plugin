@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.1.4]
+
+### Added
+
+- Support for `prompt` run item type for interactive user input
+- 6 prompt types: `confirm`, `input`, `select`, `multiselect`, `password`, `number`
+- Prompt properties: `prompt`, `type`, `message`, `default`, `defaults`, `options`, `placeholder`, `validate`, `min`, `max`, `confirm`, `platforms`
+- Syntax highlighting for prompt property keys
+- Syntax highlighting for prompt type values (confirm, input, select, etc.)
+- Updated JSON schema with prompt definitions
+
 ## [0.1.3]
 
 ### Added
@@ -175,7 +186,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.0...v0.1.1

@@ -47,6 +47,10 @@ private val DESCRIPTORS = arrayOf(
     AttributesDescriptor(
         BabBundle.message("color.settings.log.level"),
         BabHighlightingColors.LOG_LEVEL
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.prompt.type"),
+        BabHighlightingColors.PROMPT_TYPE
     )
 )
 
@@ -59,7 +63,8 @@ private val TAG_MAP = mapOf(
     "interp" to BabHighlightingColors.VARIABLE_INTERPOLATION,
     "var" to BabHighlightingColors.VARIABLE_NAME,
     "env" to BabHighlightingColors.ENV_VAR_NAME,
-    "level" to BabHighlightingColors.LOG_LEVEL
+    "level" to BabHighlightingColors.LOG_LEVEL,
+    "ptype" to BabHighlightingColors.PROMPT_TYPE
 )
 
 private const val DEMO_TEXT = """
@@ -79,6 +84,9 @@ private const val DEMO_TEXT = """
   <task>setup</task>:
     <prop>desc</prop>: Install dependencies
     <prop>run</prop>:
+      - <prop>prompt</prop>: confirm_install
+        <prop>type</prop>: <ptype>confirm</ptype>
+        <prop>message</prop>: Install dependencies?
       - <prop>cmd</prop>: npm install
 
   <task>build</task>:
@@ -89,6 +97,10 @@ private const val DEMO_TEXT = """
     <prop>env</prop>:
       <env>BUILD_TARGET</env>: <interp>${"$"}{{ target }}</interp>
     <prop>run</prop>:
+      - <prop>prompt</prop>: env
+        <prop>type</prop>: <ptype>select</ptype>
+        <prop>message</prop>: Select environment
+        <prop>options</prop>: [dev, staging, prod]
       - <prop>log</prop>: Building <interp>${"$"}{{ app_name }}</interp> v<interp>${"$"}{{ version }}</interp>
         <prop>level</prop>: <level>info</level>
       - <prop>task</prop>: <ref>lint</ref>

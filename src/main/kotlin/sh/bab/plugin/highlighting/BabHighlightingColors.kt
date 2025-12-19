@@ -41,4 +41,8 @@ object BabHighlightingColors {
     @JvmField
     val LOG_LEVEL: TextAttributesKey =
         createTextAttributesKey("BAB_LOG_LEVEL", DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL)
+
+    @JvmField
+    val PROMPT_TYPE: TextAttributesKey =
+        createTextAttributesKey("BAB_PROMPT_TYPE", DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL)
 }
