@@ -105,6 +105,7 @@ private const val DEMO_TEXT = """
         <prop>level</prop>: <level>info</level>
       - <prop>task</prop>: <ref>lint</ref>
       - <prop>cmd</prop>: go build -o ./build/<interp>${"$"}{{ app_name }}</interp>
+        <prop>dir</prop>: ./dist
         <prop>platforms</prop>: [linux, darwin]
 """
 

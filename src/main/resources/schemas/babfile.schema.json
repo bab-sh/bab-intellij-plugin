@@ -59,6 +59,10 @@
           "type": "boolean",
           "description": "Show process output (stdout/stderr). Defaults to true."
         },
+        "dir": {
+          "type": "string",
+          "description": "Working directory for command execution. Relative paths are resolved from the Babfile location."
+        },
         "deps": {
           "items": {
             "type": "string",
@@ -78,6 +82,10 @@
                     "type": "string",
                     "minLength": 1,
                     "description": "Shell command to execute"
+                  },
+                  "dir": {
+                    "type": "string",
+                    "description": "Working directory for command execution. Relative paths are resolved from the Babfile location."
                   },
                   "env": {
                     "additionalProperties": {
@@ -310,6 +318,10 @@
       "type": "boolean",
       "description": "Show process output (stdout/stderr). Defaults to true."
     },
+    "dir": {
+      "type": "string",
+      "description": "Working directory for command execution. Relative paths are resolved from the Babfile location."
+    },
     "includes": {
       "additionalProperties": {
         "$ref": "#/$defs/Include"
@@ -334,9 +346,6 @@
   },
   "additionalProperties": false,
   "type": "object",
-  "required": [
-    "tasks"
-  ],
   "title": "Babfile Schema",
   "description": "Schema for Babfile task runner configuration (https://bab.sh)"
 }
