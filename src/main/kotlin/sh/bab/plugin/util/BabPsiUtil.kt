@@ -4,6 +4,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
+import org.jetbrains.yaml.psi.YAMLDocument
 import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
@@ -92,6 +93,37 @@ object BabPsiUtil {
         val includesKeyValue = includesMapping.parent as? YAMLKeyValue ?: return false
 
         return includesKeyValue.keyText == YamlKeys.INCLUDES
+    }
+
+    fun isDirContext(element: PsiElement): Boolean {
+        var current: PsiElement? = element
+        while (current != null) {
+            if (current is YAMLKeyValue && current.keyText == "dir") {
+                return isRootDirContext(current) || isTaskDirContext(current) || isRunItemDirContext(current)
+            }
+            current = current.parent
+        }
+        return false
+    }
+
+    private fun isRootDirContext(dirKeyValue: YAMLKeyValue): Boolean {
+        val rootMapping = dirKeyValue.parent as? YAMLMapping ?: return false
+        return rootMapping.parent is YAMLDocument
+    }
+
+    private fun isTaskDirContext(dirKeyValue: YAMLKeyValue): Boolean {
+        val taskMapping = dirKeyValue.parent as? YAMLMapping ?: return false
+        return isUnderTasksKey(taskMapping)
+    }
+
+    private fun isRunItemDirContext(dirKeyValue: YAMLKeyValue): Boolean {
+        val runItemMapping = dirKeyValue.parent as? YAMLMapping ?: return false
+        val sequenceItem = runItemMapping.parent as? YAMLSequenceItem ?: return false
+        val sequence = sequenceItem.parent ?: return false
+        val runKeyValue = sequence.parent as? YAMLKeyValue ?: return false
+        if (runKeyValue.keyText != YamlKeys.RUN) return false
+        val taskMapping = runKeyValue.parent as? YAMLMapping ?: return false
+        return isUnderTasksKey(taskMapping)
     }
 
     fun findCurrentTaskName(element: PsiElement): String? {
