@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.1.6]
+
+### Added
+
+- Support for `dir` option at global, task, and command levels (sets working directory for command execution)
+- Syntax highlighting for `dir` property key
+- Path autocompletion for `dir` values (relative and absolute paths)
+
+### Changed
+
+- Removed `tasks` key requirement from schema (allows include-only or vars-only babfiles)
+
 ## [0.1.5]
 
 ### Fixed
@@ -192,7 +204,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.2...v0.1.3
