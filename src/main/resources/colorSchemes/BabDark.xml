@@ -65,4 +65,11 @@
             <option name="FONT_TYPE" value="2"/>
         </value>
     </option>
+
+    <option name="BAB_CONDITION_KEYWORD">
+        <value>
+            <option name="FOREGROUND" value="ffaf5f"/>
+            <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
 </list>

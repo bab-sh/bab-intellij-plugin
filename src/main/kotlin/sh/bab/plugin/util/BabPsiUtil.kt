@@ -244,4 +244,30 @@ object BabPsiUtil {
     fun isValidTaskReference(file: YAMLFile, reference: String): Boolean {
         return resolveTaskReference(file, reference) != null
     }
+
+    fun isConditionValueContext(element: PsiElement): Boolean {
+        var current: PsiElement? = element
+        while (current != null) {
+            if (current is YAMLKeyValue && current.keyText == "when") {
+                return isTaskWhenContext(current) || isRunItemWhenContext(current)
+            }
+            current = current.parent
+        }
+        return false
+    }
+
+    private fun isTaskWhenContext(whenKeyValue: YAMLKeyValue): Boolean {
+        val taskMapping = whenKeyValue.parent as? YAMLMapping ?: return false
+        return isUnderTasksKey(taskMapping)
+    }
+
+    private fun isRunItemWhenContext(whenKeyValue: YAMLKeyValue): Boolean {
+        val runItemMapping = whenKeyValue.parent as? YAMLMapping ?: return false
+        val sequenceItem = runItemMapping.parent as? YAMLSequenceItem ?: return false
+        val sequence = sequenceItem.parent ?: return false
+        val runKeyValue = sequence.parent as? YAMLKeyValue ?: return false
+        if (runKeyValue.keyText != YamlKeys.RUN) return false
+        val taskMapping = runKeyValue.parent as? YAMLMapping ?: return false
+        return isUnderTasksKey(taskMapping)
+    }
 }

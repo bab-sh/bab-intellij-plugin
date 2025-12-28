@@ -12,11 +12,11 @@ import sh.bab.plugin.util.BabPsiUtil
 import sh.bab.plugin.util.YamlKeys
 
 private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env", "vars", "silent", "output", "dir")
-private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "vars", "platforms", "silent", "output", "dir")
+private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "vars", "platforms", "silent", "output", "dir", "when")
 private val RUN_ITEM_KEYS = setOf(
     "cmd", "task", "log", "level", "env", "platforms", "silent", "output", "dir",
     "prompt", "type", "message", "default", "defaults", "options",
-    "placeholder", "validate", "min", "max", "confirm"
+    "placeholder", "validate", "min", "max", "confirm", "when"
 )
 private val LOG_LEVELS = setOf("debug", "info", "warn", "error")
 private val PROMPT_TYPES = setOf("confirm", "input", "select", "multiselect", "password", "number")
@@ -46,10 +46,10 @@ class BabAnnotator : Annotator {
                 highlight(key, holder, BabHighlightingColors.TASK_NAME)
 
             isTaskPropertyKey(keyValue) && keyText in TASK_PROPERTY_KEYS ->
-                highlight(key, holder, BabHighlightingColors.PROPERTY_KEY)
+                highlight(key, holder, if (keyText == "when") BabHighlightingColors.CONDITION_KEYWORD else BabHighlightingColors.PROPERTY_KEY)
 
             isRunItemPropertyKey(keyValue) && keyText in RUN_ITEM_KEYS ->
-                highlight(key, holder, BabHighlightingColors.PROPERTY_KEY)
+                highlight(key, holder, if (keyText == "when") BabHighlightingColors.CONDITION_KEYWORD else BabHighlightingColors.PROPERTY_KEY)
 
             isIncludeNameKey(keyValue) ->
                 highlight(key, holder, BabHighlightingColors.INCLUDE_NAME)

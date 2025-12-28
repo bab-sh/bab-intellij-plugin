@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.1.7]
+
+### Added
+
+- Support for `when` conditional execution at task and run item levels
+- Condition syntax: `${{ var }}` (truthy), `${{ var }} == 'value'` (equality), `${{ var }} != 'value'` (inequality)
+- Syntax highlighting for `when` keyword (orange color)
+- Auto-completion templates for condition expressions
+
 ## [0.1.6]
 
 ### Added
@@ -204,7 +213,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.3...v0.1.4

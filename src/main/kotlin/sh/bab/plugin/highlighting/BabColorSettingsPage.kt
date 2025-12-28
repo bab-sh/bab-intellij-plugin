@@ -51,6 +51,10 @@ private val DESCRIPTORS = arrayOf(
     AttributesDescriptor(
         BabBundle.message("color.settings.prompt.type"),
         BabHighlightingColors.PROMPT_TYPE
+    ),
+    AttributesDescriptor(
+        BabBundle.message("color.settings.condition.keyword"),
+        BabHighlightingColors.CONDITION_KEYWORD
     )
 )
 
@@ -64,7 +68,8 @@ private val TAG_MAP = mapOf(
     "var" to BabHighlightingColors.VARIABLE_NAME,
     "env" to BabHighlightingColors.ENV_VAR_NAME,
     "level" to BabHighlightingColors.LOG_LEVEL,
-    "ptype" to BabHighlightingColors.PROMPT_TYPE
+    "ptype" to BabHighlightingColors.PROMPT_TYPE,
+    "cond" to BabHighlightingColors.CONDITION_KEYWORD
 )
 
 private const val DEMO_TEXT = """
@@ -88,9 +93,11 @@ private const val DEMO_TEXT = """
         <prop>type</prop>: <ptype>confirm</ptype>
         <prop>message</prop>: Install dependencies?
       - <prop>cmd</prop>: npm install
+        <cond>when</cond>: <interp>${"$"}{{ confirm_install }}</interp>
 
   <task>build</task>:
     <prop>desc</prop>: Build for production
+    <cond>when</cond>: <interp>${"$"}{{ env }}</interp> == 'prod'
     <prop>deps</prop>: [<ref>setup</ref>]
     <prop>vars</prop>:
       <var>target</var>: release

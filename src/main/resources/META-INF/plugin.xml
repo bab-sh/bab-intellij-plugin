@@ -42,6 +42,10 @@
             language="yaml"
             implementationClass="sh.bab.plugin.completion.BabTaskCompletionContributor"/>
 
+        <completion.contributor
+            language="yaml"
+            implementationClass="sh.bab.plugin.completion.BabConditionCompletionContributor"/>
+
         <localInspection
             language="yaml"
             shortName="BabUnresolvedTaskReference"
