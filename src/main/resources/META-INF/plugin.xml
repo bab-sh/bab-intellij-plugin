@@ -57,6 +57,17 @@
             level="ERROR"
             implementationClass="sh.bab.plugin.inspections.BabUnresolvedTaskReferenceInspection"/>
 
+        <localInspection
+            language="yaml"
+            shortName="BabDuplicateAlias"
+            bundle="messages.BabBundle"
+            key="inspection.duplicate.alias.name"
+            groupBundle="messages.BabBundle"
+            groupKey="inspection.group.name"
+            enabledByDefault="true"
+            level="ERROR"
+            implementationClass="sh.bab.plugin.inspections.BabDuplicateAliasInspection"/>
+
         <toolWindow
             id="Bab"
             anchor="right"

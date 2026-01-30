@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.1.8]
+
+### Added
+
+- Support for task aliases (`alias` and `aliases` properties)
+- Autocompletion for task aliases in `deps` and `run[].task` fields
+- Validation for alias conflicts (alias vs task name, alias vs alias)
+- Self-dependency check now includes aliases
+- Syntax highlighting for `alias` and `aliases` keys
+
+### Fixed
+
+- Downgraded Kotlin to 2.1.10 for IntelliJ Platform compatibility
+
 ## [0.1.7]
 
 ### Added
@@ -213,7 +227,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.4...v0.1.5

@@ -30,21 +30,22 @@ class BabTaskCompletionContributor : CompletionContributor() {
 
                     val yamlFile = parameters.originalFile as? YAMLFile ?: return
                     val currentTaskName = BabPsiUtil.findCurrentTaskName(parameters.position)
+                    val currentTaskAliases = BabPsiUtil.findCurrentTaskAliases(parameters.position)
 
                     val includeNames = BabPsiUtil.extractIncludeNames(yamlFile)
 
-                    BabPsiUtil.extractAllTaskReferences(yamlFile)
-                        .filter { it != currentTaskName }
+                    BabPsiUtil.extractAllTaskReferencesWithType(yamlFile)
+                        .filter { it.reference != currentTaskName && it.reference !in currentTaskAliases }
                         .forEach { taskRef ->
-                            val prefix = taskRef.substringBefore(":")
-                            val isExternal = taskRef.contains(":") && prefix in includeNames
-                            val typeText = if (isExternal) {
-                                BabPsiUtil.getIncludeBabfilePath(yamlFile, prefix) ?: prefix
-                            } else {
-                                "task"
+                            val prefix = taskRef.reference.substringBefore(":")
+                            val isExternal = taskRef.reference.contains(":") && prefix in includeNames
+                            val typeText = when {
+                                taskRef.isAlias -> "alias"
+                                isExternal -> BabPsiUtil.getIncludeBabfilePath(yamlFile, prefix) ?: prefix
+                                else -> "task"
                             }
                             result.addElement(
-                                LookupElementBuilder.create(taskRef)
+                                LookupElementBuilder.create(taskRef.reference)
                                     .withIcon(BabIcons.Task)
                                     .withTypeText(typeText, true)
                             )

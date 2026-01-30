@@ -29,9 +29,10 @@ class BabUnresolvedTaskReferenceInspection : LocalInspectionTool() {
                 if (reference.isEmpty()) return
 
                 val currentTaskName = BabPsiUtil.findCurrentTaskName(element)
+                val currentTaskAliases = BabPsiUtil.findCurrentTaskAliases(element)
 
                 when {
-                    reference == currentTaskName -> {
+                    reference == currentTaskName || reference in currentTaskAliases -> {
                         holder.registerProblem(
                             element,
                             BabBundle.message("inspection.self.dependency", reference),

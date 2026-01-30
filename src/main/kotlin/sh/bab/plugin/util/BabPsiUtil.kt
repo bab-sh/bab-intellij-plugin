@@ -9,6 +9,7 @@ import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLScalar
+import org.jetbrains.yaml.psi.YAMLSequence
 import org.jetbrains.yaml.psi.YAMLSequenceItem
 
 object YamlKeys {
@@ -18,6 +19,8 @@ object YamlKeys {
     const val INCLUDES = "includes"
     const val BABFILE = "babfile"
     const val DESC = "desc"
+    const val ALIAS = "alias"
+    const val ALIASES = "aliases"
 }
 
 object BabPsiUtil {
@@ -127,6 +130,17 @@ object BabPsiUtil {
     }
 
     fun findCurrentTaskName(element: PsiElement): String? {
+        val taskKeyValue = findCurrentTaskKeyValue(element) ?: return null
+        return taskKeyValue.keyText
+    }
+
+    fun findCurrentTaskAliases(element: PsiElement): Set<String> {
+        val taskKeyValue = findCurrentTaskKeyValue(element) ?: return emptySet()
+        val taskMapping = taskKeyValue.value as? YAMLMapping ?: return emptySet()
+        return extractAliasesFromTaskMapping(taskMapping).toSet()
+    }
+
+    private fun findCurrentTaskKeyValue(element: PsiElement): YAMLKeyValue? {
         var parent: PsiElement? = element.parent
         while (parent != null) {
             if (parent is YAMLKeyValue) {
@@ -134,7 +148,7 @@ object BabPsiUtil {
                 if (grandparent is YAMLMapping) {
                     val greatGrandparent = grandparent.parent
                     if (greatGrandparent is YAMLKeyValue && greatGrandparent.keyText == YamlKeys.TASKS) {
-                        return parent.keyText
+                        return parent
                     }
                 }
             }
@@ -158,6 +172,41 @@ object BabPsiUtil {
             ?.filter { it.isNotEmpty() }
             ?.toSet()
             ?: emptySet()
+    }
+
+    data class TaskReference(val reference: String, val isAlias: Boolean)
+
+    private fun extractAliasesFromTaskMapping(taskMapping: YAMLMapping): List<String> {
+        val result = mutableListOf<String>()
+
+        val alias = taskMapping.keyValues.find { it.keyText == YamlKeys.ALIAS }?.valueText
+        if (!alias.isNullOrEmpty()) {
+            result.add(alias)
+        }
+
+        val aliasesSequence = taskMapping.keyValues.find { it.keyText == YamlKeys.ALIASES }?.value as? YAMLSequence
+        aliasesSequence?.items?.mapNotNull { it.value?.text }?.let { result.addAll(it) }
+
+        return result
+    }
+
+    private fun extractTaskReferences(file: YAMLFile): List<TaskReference> {
+        val result = mutableListOf<TaskReference>()
+        val tasksMapping = getTasksMapping(file) ?: return result
+
+        for (taskKeyValue in tasksMapping.keyValues) {
+            val taskName = taskKeyValue.keyText
+            if (taskName.isNotEmpty()) {
+                result.add(TaskReference(taskName, isAlias = false))
+            }
+
+            val taskMapping = taskKeyValue.value as? YAMLMapping ?: continue
+            for (alias in extractAliasesFromTaskMapping(taskMapping)) {
+                result.add(TaskReference(alias, isAlias = true))
+            }
+        }
+
+        return result
     }
 
     private fun getTaskKeyValues(file: YAMLFile): List<YAMLKeyValue> {
@@ -205,20 +254,25 @@ object BabPsiUtil {
     }
 
     fun extractAllTaskReferences(file: YAMLFile, prefix: String = "", visited: MutableSet<String> = mutableSetOf()): Set<String> {
-        val filePath = file.virtualFile?.path ?: return emptySet()
-        if (filePath in visited) return emptySet()
+        return extractAllTaskReferencesWithType(file, prefix, visited).map { it.reference }.toSet()
+    }
+
+    fun extractAllTaskReferencesWithType(file: YAMLFile, prefix: String = "", visited: MutableSet<String> = mutableSetOf()): List<TaskReference> {
+        val filePath = file.virtualFile?.path ?: return emptyList()
+        if (filePath in visited) return emptyList()
         visited.add(filePath)
 
-        val result = mutableSetOf<String>()
+        val result = mutableListOf<TaskReference>()
 
-        for (taskName in extractTaskNames(file)) {
-            result.add(if (prefix.isEmpty()) taskName else "$prefix:$taskName")
+        for (taskRef in extractTaskReferences(file)) {
+            val fullRef = if (prefix.isEmpty()) taskRef.reference else "$prefix:${taskRef.reference}"
+            result.add(TaskReference(fullRef, taskRef.isAlias))
         }
 
         for (includeName in extractIncludeNames(file)) {
             val includedFile = getIncludedYamlFile(file, includeName) ?: continue
             val nestedPrefix = if (prefix.isEmpty()) includeName else "$prefix:$includeName"
-            result.addAll(extractAllTaskReferences(includedFile, nestedPrefix, visited))
+            result.addAll(extractAllTaskReferencesWithType(includedFile, nestedPrefix, visited))
         }
 
         return result
@@ -230,6 +284,14 @@ object BabPsiUtil {
         visited.add(filePath)
 
         getTaskKeyValues(file).find { it.keyText == reference }?.let { return it }
+
+        for (taskKeyValue in getTaskKeyValues(file)) {
+            val taskMapping = taskKeyValue.value as? YAMLMapping ?: continue
+            val aliases = extractAliasesFromTaskMapping(taskMapping)
+            if (reference in aliases) {
+                return taskKeyValue
+            }
+        }
 
         if (reference.contains(":")) {
             val prefix = reference.substringBefore(":")

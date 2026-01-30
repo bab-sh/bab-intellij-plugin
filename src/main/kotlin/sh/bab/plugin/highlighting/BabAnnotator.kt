@@ -12,7 +12,7 @@ import sh.bab.plugin.util.BabPsiUtil
 import sh.bab.plugin.util.YamlKeys
 
 private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env", "vars", "silent", "output", "dir")
-private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, "env", "vars", "platforms", "silent", "output", "dir", "when")
+private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, YamlKeys.ALIAS, YamlKeys.ALIASES, "env", "vars", "platforms", "silent", "output", "dir", "when")
 private val RUN_ITEM_KEYS = setOf(
     "cmd", "task", "log", "level", "env", "platforms", "silent", "output", "dir",
     "prompt", "type", "message", "default", "defaults", "options",

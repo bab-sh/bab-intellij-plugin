@@ -21,8 +21,14 @@ data class BabTask(
     val name: String,
     val description: String?,
     val dependencies: List<String>,
+    val alias: String? = null,
+    val aliases: List<String> = emptyList(),
     val psiElement: YAMLKeyValue? = null
-)
+) {
+    fun getAllAliases(): List<String> {
+        return listOfNotNull(alias) + aliases
+    }
+}
 
 data class BabFile(
     val file: VirtualFile,
@@ -117,11 +123,16 @@ class BabFileService(private val project: Project) {
             val description = taskMapping?.keyValues?.find { it.keyText == YamlKeys.DESC }?.valueText
             val depsSequence = taskMapping?.keyValues?.find { it.keyText == YamlKeys.DEPS }?.value as? YAMLSequence
             val dependencies = depsSequence?.items?.mapNotNull { it.value?.text } ?: emptyList()
+            val alias = taskMapping?.keyValues?.find { it.keyText == YamlKeys.ALIAS }?.valueText
+            val aliasesSequence = taskMapping?.keyValues?.find { it.keyText == YamlKeys.ALIASES }?.value as? YAMLSequence
+            val aliases = aliasesSequence?.items?.mapNotNull { it.value?.text } ?: emptyList()
 
             BabTask(
                 name = taskName,
                 description = description,
                 dependencies = dependencies,
+                alias = alias,
+                aliases = aliases,
                 psiElement = taskKeyValue
             )
         }
