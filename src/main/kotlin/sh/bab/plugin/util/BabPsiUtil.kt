@@ -65,6 +65,10 @@ object BabPsiUtil {
 
     private fun checkRunTaskHierarchy(taskKeyValue: YAMLKeyValue): Boolean {
         val mapping = taskKeyValue.parent as? YAMLMapping ?: return false
+        return isInsideRunSequence(mapping)
+    }
+
+    private fun isInsideRunSequence(mapping: YAMLMapping): Boolean {
         val sequenceItem = mapping.parent as? YAMLSequenceItem ?: return false
         val sequence = sequenceItem.parent ?: return false
         val runKeyValue = sequence.parent as? YAMLKeyValue ?: return false
@@ -121,12 +125,7 @@ object BabPsiUtil {
 
     private fun isRunItemDirContext(dirKeyValue: YAMLKeyValue): Boolean {
         val runItemMapping = dirKeyValue.parent as? YAMLMapping ?: return false
-        val sequenceItem = runItemMapping.parent as? YAMLSequenceItem ?: return false
-        val sequence = sequenceItem.parent ?: return false
-        val runKeyValue = sequence.parent as? YAMLKeyValue ?: return false
-        if (runKeyValue.keyText != YamlKeys.RUN) return false
-        val taskMapping = runKeyValue.parent as? YAMLMapping ?: return false
-        return isUnderTasksKey(taskMapping)
+        return isInsideRunSequence(runItemMapping)
     }
 
     fun findCurrentTaskName(element: PsiElement): String? {
@@ -163,15 +162,6 @@ object BabPsiUtil {
         val tasksKeyValue = rootMapping.keyValues.find { it.keyText == YamlKeys.TASKS }
             ?: return null
         return tasksKeyValue.value as? YAMLMapping
-    }
-
-    private fun extractTaskNames(file: YAMLFile): Set<String> {
-        return getTasksMapping(file)
-            ?.keyValues
-            ?.mapNotNull { it.keyText }
-            ?.filter { it.isNotEmpty() }
-            ?.toSet()
-            ?: emptySet()
     }
 
     data class TaskReference(val reference: String, val isAlias: Boolean)
@@ -325,11 +315,6 @@ object BabPsiUtil {
 
     private fun isRunItemWhenContext(whenKeyValue: YAMLKeyValue): Boolean {
         val runItemMapping = whenKeyValue.parent as? YAMLMapping ?: return false
-        val sequenceItem = runItemMapping.parent as? YAMLSequenceItem ?: return false
-        val sequence = sequenceItem.parent ?: return false
-        val runKeyValue = sequence.parent as? YAMLKeyValue ?: return false
-        if (runKeyValue.keyText != YamlKeys.RUN) return false
-        val taskMapping = runKeyValue.parent as? YAMLMapping ?: return false
-        return isUnderTasksKey(taskMapping)
+        return isInsideRunSequence(runItemMapping)
     }
 }

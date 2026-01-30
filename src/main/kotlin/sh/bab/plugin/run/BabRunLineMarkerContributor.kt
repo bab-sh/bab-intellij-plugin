@@ -12,7 +12,6 @@ import sh.bab.plugin.BabBundle
 import sh.bab.plugin.filetype.isBabfile
 import sh.bab.plugin.services.BabFileService
 import sh.bab.plugin.util.YamlKeys
-import java.util.function.Function
 
 class BabRunLineMarkerContributor : RunLineMarkerContributor() {
 
@@ -41,8 +40,7 @@ class BabRunLineMarkerContributor : RunLineMarkerContributor() {
 
         return Info(
             AllIcons.RunConfigurations.TestState.Run,
-            ExecutorAction.getActions(),
-            Function { BabBundle.message("run.line.marker.tooltip", fullTaskName) }
-        )
+            ExecutorAction.getActions()
+        ) { BabBundle.message("run.line.marker.tooltip", fullTaskName) }
     }
 }

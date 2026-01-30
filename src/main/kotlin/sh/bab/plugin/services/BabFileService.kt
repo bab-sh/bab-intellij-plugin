@@ -24,11 +24,7 @@ data class BabTask(
     val alias: String? = null,
     val aliases: List<String> = emptyList(),
     val psiElement: YAMLKeyValue? = null
-) {
-    fun getAllAliases(): List<String> {
-        return listOfNotNull(alias) + aliases
-    }
-}
+)
 
 data class BabFile(
     val file: VirtualFile,
