@@ -1,13 +1,16 @@
 package sh.bab.plugin.settings
 
+import com.intellij.openapi.components.service
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Assert.assertNotEquals
+import sh.bab.plugin.model.BabExecutable
+import sh.bab.plugin.util.BabBinaryUtil
 
 class BabSettingsTest : BasePlatformTestCase() {
 
     override fun setUp() {
         super.setUp()
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.babBinaryPath = ""
         settings.workingDirectory = ""
         settings.additionalArgs = ""
@@ -15,12 +18,12 @@ class BabSettingsTest : BasePlatformTestCase() {
     }
 
     fun testSettingsInstantiation() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         assertNotNull("BabSettings should be available", settings)
     }
 
     fun testDefaultValuesAfterReset() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         assertEquals("babBinaryPath should be empty after reset", "", settings.babBinaryPath)
         assertEquals("workingDirectory should be empty after reset", "", settings.workingDirectory)
         assertEquals("additionalArgs should be empty after reset", "", settings.additionalArgs)
@@ -28,21 +31,21 @@ class BabSettingsTest : BasePlatformTestCase() {
     }
 
     fun testGetEffectiveBabBinaryPathWithEmpty() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.babBinaryPath = ""
 
         assertEquals("Empty path should default to 'bab'", "bab", settings.getEffectiveBabBinaryPath())
     }
 
     fun testGetEffectiveBabBinaryPathWithValue() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.babBinaryPath = "/usr/local/bin/bab"
 
         assertEquals("Should return configured path", "/usr/local/bin/bab", settings.getEffectiveBabBinaryPath())
     }
 
     fun testGetEffectiveWorkingDirectoryWithEmpty() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.workingDirectory = ""
 
         val projectPath = "/home/user/project"
@@ -51,7 +54,7 @@ class BabSettingsTest : BasePlatformTestCase() {
     }
 
     fun testGetEffectiveWorkingDirectoryWithValue() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.workingDirectory = "/custom/path"
 
         assertEquals("Should return configured directory",
@@ -59,7 +62,7 @@ class BabSettingsTest : BasePlatformTestCase() {
     }
 
     fun testGetEffectiveWorkingDirectoryWithNullProjectPath() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.workingDirectory = ""
 
         assertEquals("Null project path should return '.'",
@@ -67,28 +70,28 @@ class BabSettingsTest : BasePlatformTestCase() {
     }
 
     fun testSetBabBinaryPath() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.babBinaryPath = "/opt/bab/bin/bab"
 
         assertEquals("/opt/bab/bin/bab", settings.babBinaryPath)
     }
 
     fun testSetWorkingDirectory() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.workingDirectory = "/my/working/dir"
 
         assertEquals("/my/working/dir", settings.workingDirectory)
     }
 
     fun testSetAdditionalArgs() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.additionalArgs = "--verbose --debug"
 
         assertEquals("--verbose --debug", settings.additionalArgs)
     }
 
     fun testSetDryRun() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         val initialValue = settings.dryRun
 
         settings.dryRun = !initialValue
@@ -99,7 +102,7 @@ class BabSettingsTest : BasePlatformTestCase() {
     }
 
     fun testGetState() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.babBinaryPath = "/test/path"
         settings.dryRun = true
 
@@ -110,13 +113,14 @@ class BabSettingsTest : BasePlatformTestCase() {
     }
 
     fun testLoadState() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
 
-        val newState = BabSettings()
-        newState.babBinaryPath = "/new/path"
-        newState.workingDirectory = "/new/dir"
-        newState.additionalArgs = "--new-arg"
-        newState.dryRun = true
+        val newState = BabSettingsState(
+            babBinaryPath = "/new/path",
+            workingDirectory = "/new/dir",
+            additionalArgs = "--new-arg",
+            dryRun = true
+        )
 
         settings.loadState(newState)
 
@@ -127,14 +131,14 @@ class BabSettingsTest : BasePlatformTestCase() {
     }
 
     fun testMultipleSettingsInstances() {
-        val settings1 = BabSettings.getInstance(project)
-        val settings2 = BabSettings.getInstance(project)
+        val settings1 = project.service<BabSettings>()
+        val settings2 = project.service<BabSettings>()
 
         assertSame("getInstance should return same instance", settings1, settings2)
     }
 
     fun testSettingsAfterModification() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
 
         settings.babBinaryPath = "/first/path"
         assertEquals("/first/path", settings.babBinaryPath)
@@ -144,12 +148,12 @@ class BabSettingsTest : BasePlatformTestCase() {
     }
 
     fun testDetectAllBabBinariesReturnsEmptyListWhenNoneFound() {
-        val executables = BabSettings.detectAllBabBinaries()
+        val executables = BabBinaryUtil.detectAllBabBinaries()
         assertNotNull("detectAllBabBinaries should return a list (not null)", executables)
     }
 
     fun testDetectBabBinaryReturnsNullWhenNoneFound() {
-        BabSettings.detectBabBinary()
+        BabBinaryUtil.detectBabBinary()
     }
 
     fun testBabExecutableToStringWithVersion() {

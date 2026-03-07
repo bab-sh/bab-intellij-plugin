@@ -49,4 +49,8 @@ object BabHighlightingColors {
     @JvmField
     val CONDITION_KEYWORD: TextAttributesKey =
         createTextAttributesKey("BAB_CONDITION_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD)
+
+    @JvmField
+    val PARALLEL_MODE: TextAttributesKey =
+        createTextAttributesKey("BAB_PARALLEL_MODE", DefaultLanguageHighlighterColors.PREDEFINED_SYMBOL)
 }

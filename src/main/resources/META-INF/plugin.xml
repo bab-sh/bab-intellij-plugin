@@ -90,7 +90,7 @@
             language="yaml"
             implementationClass="sh.bab.plugin.run.BabRunLineMarkerContributor"/>
 
-        <postStartupActivity implementation="sh.bab.plugin.BabProjectActivity"/>
+        <projectActivity implementation="sh.bab.plugin.BabProjectActivity"/>
 
         <annotator
             language="yaml"

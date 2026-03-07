@@ -5,13 +5,14 @@ import com.intellij.execution.actions.ConfigurationFromContext
 import com.intellij.execution.actions.LazyRunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.components.service
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import sh.bab.plugin.filetype.isBabfile
 import sh.bab.plugin.services.BabFileService
-import sh.bab.plugin.util.BabPsiUtil
+import sh.bab.plugin.util.BabTaskUtil
 
-class BabRunConfigurationProducer : LazyRunConfigurationProducer<BabRunConfiguration>() {
+class BabRunConfigurationProducer : LazyRunConfigurationProducer<BabRunConfiguration>(), DumbAware {
 
     override fun getConfigurationFactory(): ConfigurationFactory =
         getBabRunConfigurationType().configurationFactories.firstOrNull()
@@ -56,7 +57,7 @@ class BabRunConfigurationProducer : LazyRunConfigurationProducer<BabRunConfigura
 
         if (!isBabfile(file)) return null
 
-        val localTaskName = BabPsiUtil.findCurrentTaskName(element) ?: return null
+        val localTaskName = BabTaskUtil.findCurrentTaskName(element) ?: return null
         val babFileService = context.project.service<BabFileService>()
 
         return babFileService.getFullTaskName(file, localTaskName) ?: localTaskName

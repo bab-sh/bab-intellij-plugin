@@ -9,7 +9,8 @@ import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLScalar
 import sh.bab.plugin.BabBundle
 import sh.bab.plugin.filetype.isBabfile
-import sh.bab.plugin.util.BabPsiUtil
+import sh.bab.plugin.util.BabContextUtil
+import sh.bab.plugin.util.BabTaskUtil
 
 class BabUnresolvedTaskReferenceInspection : LocalInspectionTool() {
 
@@ -23,13 +24,13 @@ class BabUnresolvedTaskReferenceInspection : LocalInspectionTool() {
         return object : PsiElementVisitor() {
             override fun visitElement(element: PsiElement) {
                 if (element !is YAMLScalar) return
-                if (!BabPsiUtil.isTaskReferenceContext(element)) return
+                if (!BabContextUtil.isTaskReferenceContext(element)) return
 
                 val reference = element.textValue.trim()
                 if (reference.isEmpty()) return
 
-                val currentTaskName = BabPsiUtil.findCurrentTaskName(element)
-                val currentTaskAliases = BabPsiUtil.findCurrentTaskAliases(element)
+                val currentTaskName = BabTaskUtil.findCurrentTaskName(element)
+                val currentTaskAliases = BabTaskUtil.findCurrentTaskAliases(element)
 
                 when {
                     reference == currentTaskName || reference in currentTaskAliases -> {
@@ -39,7 +40,7 @@ class BabUnresolvedTaskReferenceInspection : LocalInspectionTool() {
                             ProblemHighlightType.ERROR
                         )
                     }
-                    !BabPsiUtil.isValidTaskReference(file, reference) -> {
+                    !BabTaskUtil.isValidTaskReference(file, reference) -> {
                         holder.registerProblem(
                             element,
                             BabBundle.message("inspection.unresolved.reference", reference),

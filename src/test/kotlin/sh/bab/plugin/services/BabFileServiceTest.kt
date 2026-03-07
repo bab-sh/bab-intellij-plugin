@@ -3,6 +3,9 @@ package sh.bab.plugin.services
 import com.intellij.openapi.components.service
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.jetbrains.yaml.psi.YAMLFile
+import sh.bab.plugin.model.BabFile
+import sh.bab.plugin.model.BabInclude
+import sh.bab.plugin.model.BabTask
 import org.junit.Assert.assertNotEquals
 
 class BabFileServiceTest : BasePlatformTestCase() {

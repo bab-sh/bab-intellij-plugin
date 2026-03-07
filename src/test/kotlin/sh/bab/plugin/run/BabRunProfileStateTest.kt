@@ -1,6 +1,8 @@
 package sh.bab.plugin.run
 
 import com.intellij.execution.configurations.ConfigurationType
+import com.intellij.execution.configurations.ParametersList
+import com.intellij.openapi.components.service
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Assert.assertNotEquals
 import sh.bab.plugin.settings.BabSettings
@@ -20,8 +22,7 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
     }
 
     fun testArgumentParsingSimple() {
-        val args = "--verbose --debug"
-        val parsed = parseArgumentsHelper(args)
+        val parsed = ParametersList.parse("--verbose --debug").toList()
 
         assertEquals("Should have 2 arguments", 2, parsed.size)
         assertEquals("First argument", "--verbose", parsed[0])
@@ -29,8 +30,7 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
     }
 
     fun testArgumentParsingWithDoubleQuotes() {
-        val args = """--message "hello world" --flag"""
-        val parsed = parseArgumentsHelper(args)
+        val parsed = ParametersList.parse("""--message "hello world" --flag""").toList()
 
         assertEquals("Should have 3 arguments", 3, parsed.size)
         assertEquals("--message", parsed[0])
@@ -39,8 +39,7 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
     }
 
     fun testArgumentParsingWithSingleQuotes() {
-        val args = """--message 'hello world' --flag"""
-        val parsed = parseArgumentsHelper(args)
+        val parsed = ParametersList.parse("""--message "hello world" --flag""").toList()
 
         assertEquals("Should have 3 arguments", 3, parsed.size)
         assertEquals("--message", parsed[0])
@@ -49,33 +48,27 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
     }
 
     fun testArgumentParsingEmpty() {
-        val args = ""
-        val parsed = parseArgumentsHelper(args)
-
+        val parsed = ParametersList.parse("").toList()
         assertTrue("Empty string should return empty list", parsed.isEmpty())
     }
 
     fun testArgumentParsingBlank() {
-        val args = "   "
-        val parsed = parseArgumentsHelper(args)
-
+        val parsed = ParametersList.parse("   ").toList()
         assertTrue("Blank string should return empty list", parsed.isEmpty())
     }
 
     fun testArgumentParsingMixedQuotes() {
-        val args = """--single 'value one' --double "value two""""
-        val parsed = parseArgumentsHelper(args)
+        val parsed = ParametersList.parse("""--first "value one" --second "value two"""").toList()
 
         assertEquals("Should have 4 arguments", 4, parsed.size)
-        assertEquals("--single", parsed[0])
+        assertEquals("--first", parsed[0])
         assertEquals("value one", parsed[1])
-        assertEquals("--double", parsed[2])
+        assertEquals("--second", parsed[2])
         assertEquals("value two", parsed[3])
     }
 
     fun testArgumentParsingMultipleSpaces() {
-        val args = "--arg1   --arg2    --arg3"
-        val parsed = parseArgumentsHelper(args)
+        val parsed = ParametersList.parse("--arg1   --arg2    --arg3").toList()
 
         assertEquals("Should have 3 arguments, ignoring extra spaces", 3, parsed.size)
         assertEquals("--arg1", parsed[0])
@@ -84,7 +77,7 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
     }
 
     fun testSettingsAffectBehavior() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         val initialDryRun = settings.dryRun
 
         settings.dryRun = !initialDryRun
@@ -95,7 +88,7 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
     }
 
     fun testSettingsAdditionalArgs() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
         settings.additionalArgs = "--verbose --timeout=30"
 
         assertEquals("Additional args should be set", "--verbose --timeout=30", settings.additionalArgs)
@@ -107,7 +100,7 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
     }
 
     fun testEffectiveBinaryPath() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
 
         settings.babBinaryPath = ""
         assertEquals("Should default to 'bab'", "bab", settings.getEffectiveBabBinaryPath())
@@ -117,7 +110,7 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
     }
 
     fun testEffectiveWorkingDirectory() {
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
 
         settings.workingDirectory = ""
         val projectPath = "/home/user/project"
@@ -125,36 +118,5 @@ class BabRunProfileStateTest : BasePlatformTestCase() {
 
         settings.workingDirectory = "/custom/dir"
         assertEquals("Should use custom directory", "/custom/dir", settings.getEffectiveWorkingDirectory(projectPath))
-    }
-
-    private fun parseArgumentsHelper(args: String): List<String> {
-        if (args.isBlank()) return emptyList()
-
-        val result = mutableListOf<String>()
-        val current = StringBuilder()
-        var inSingleQuote = false
-        var inDoubleQuote = false
-
-        for (c in args) {
-            when (c) {
-                '\'' -> if (!inDoubleQuote) inSingleQuote = !inSingleQuote else current.append(c)
-                '"' -> if (!inSingleQuote) inDoubleQuote = !inDoubleQuote else current.append(c)
-                ' ' -> if (!inSingleQuote && !inDoubleQuote) {
-                    if (current.isNotEmpty()) {
-                        result.add(current.toString())
-                        current.clear()
-                    }
-                } else {
-                    current.append(c)
-                }
-                else -> current.append(c)
-            }
-        }
-
-        if (current.isNotEmpty()) {
-            result.add(current.toString())
-        }
-
-        return result
     }
 }

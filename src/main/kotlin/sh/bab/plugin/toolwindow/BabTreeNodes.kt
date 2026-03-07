@@ -1,7 +1,7 @@
 package sh.bab.plugin.toolwindow
 
 import com.intellij.openapi.vfs.VirtualFile
-import sh.bab.plugin.services.BabTask
+import sh.bab.plugin.model.BabTask
 
 sealed class BabTreeNode {
     abstract val displayName: String

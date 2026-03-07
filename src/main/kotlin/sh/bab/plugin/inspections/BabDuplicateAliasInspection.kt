@@ -12,7 +12,8 @@ import org.jetbrains.yaml.psi.YAMLScalar
 import org.jetbrains.yaml.psi.YAMLSequence
 import sh.bab.plugin.BabBundle
 import sh.bab.plugin.filetype.isBabfile
-import sh.bab.plugin.util.YamlKeys
+import sh.bab.plugin.model.YamlKeys
+import sh.bab.plugin.util.BabTaskUtil
 
 class BabDuplicateAliasInspection : LocalInspectionTool() {
 
@@ -37,7 +38,7 @@ class BabDuplicateAliasInspection : LocalInspectionTool() {
                 analysisComplete = true
 
                 val yamlFile = file as? YAMLFile ?: return
-                val tasksMapping = getTasksMapping(yamlFile) ?: return
+                val tasksMapping = BabTaskUtil.getTasksMapping(yamlFile) ?: return
 
                 val taskNames = mutableSetOf<String>()
                 val taskNameElements = mutableMapOf<String, PsiElement>()
@@ -112,11 +113,5 @@ class BabDuplicateAliasInspection : LocalInspectionTool() {
                 }
             }
         }
-    }
-
-    private fun getTasksMapping(file: YAMLFile): YAMLMapping? {
-        val rootMapping = file.documents.firstOrNull()?.topLevelValue as? YAMLMapping ?: return null
-        val tasksKeyValue = rootMapping.keyValues.find { it.keyText == YamlKeys.TASKS } ?: return null
-        return tasksKeyValue.value as? YAMLMapping
     }
 }

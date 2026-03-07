@@ -1,0 +1,22 @@
+<html lang="en">
+<body>
+Reports duplicate or conflicting task aliases in babfiles.
+<p>
+    This inspection detects aliases that conflict with existing task names,
+    duplicate aliases within the same task, and aliases that conflict across
+    different tasks.
+</p>
+<p><b>Example of problems:</b></p>
+<pre><code>
+tasks:
+  build:
+    alias: b
+    aliases:
+      - b          # Error: Duplicate alias
+  test:
+    alias: build   # Error: Alias conflicts with task name
+  lint:
+    alias: b       # Error: Alias conflicts with alias in 'build'
+</code></pre>
+</body>
+</html>

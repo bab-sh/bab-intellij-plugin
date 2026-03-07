@@ -15,6 +15,9 @@ import com.intellij.ui.PopupHandler
 import com.intellij.ui.TreeSpeedSearch
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.readAction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.tree.TreeUtil
@@ -22,11 +25,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sh.bab.plugin.BabBundle
-import sh.bab.plugin.services.BabCoroutineService
-import sh.bab.plugin.services.BabFile
+import sh.bab.plugin.model.BabFile
+import sh.bab.plugin.model.BabTask
 import sh.bab.plugin.services.BabFileService
 import sh.bab.plugin.services.BabNotificationService
-import sh.bab.plugin.services.BabTask
 import java.awt.Component
 import java.awt.datatransfer.StringSelection
 import java.awt.event.MouseAdapter
@@ -43,7 +45,7 @@ class BabToolWindowPanel(
     private val rootNode: DefaultMutableTreeNode = DefaultMutableTreeNode("Bab Tasks")
     @Volatile
     private var isDisposed = false
-    private val coroutineScope get() = project.service<BabCoroutineService>().scope
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mouseListeners = mutableListOf<java.awt.event.MouseListener>()
 
     companion object {
@@ -153,6 +155,7 @@ class BabToolWindowPanel(
 
     override fun dispose() {
         isDisposed = true
+        coroutineScope.cancel()
         mouseListeners.forEach { tree.removeMouseListener(it) }
         mouseListeners.clear()
     }

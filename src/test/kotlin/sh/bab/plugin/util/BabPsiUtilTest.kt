@@ -2,6 +2,7 @@ package sh.bab.plugin.util
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.jetbrains.yaml.psi.YAMLFile
+import sh.bab.plugin.model.YamlKeys
 
 class BabPsiUtilTest : BasePlatformTestCase() {
 
@@ -20,7 +21,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
 
         val element = myFixture.file.findElementAt(myFixture.caretOffset)
         assertNotNull("Element should exist at caret", element)
-        assertTrue("Should be in task reference context (deps)", BabPsiUtil.isTaskReferenceContext(element!!))
+        assertTrue("Should be in task reference context (deps)", BabContextUtil.isTaskReferenceContext(element!!))
     }
 
     fun testIsTaskReferenceContextInRunTask() {
@@ -36,7 +37,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
 
         val element = myFixture.file.findElementAt(myFixture.caretOffset)
         assertNotNull("Element should exist at caret", element)
-        assertTrue("Should be in task reference context (run.task)", BabPsiUtil.isTaskReferenceContext(element!!))
+        assertTrue("Should be in task reference context (run.task)", BabContextUtil.isTaskReferenceContext(element!!))
     }
 
     fun testIsTaskReferenceContextOutsideReturnsNull() {
@@ -50,7 +51,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
 
         val element = myFixture.file.findElementAt(myFixture.caretOffset)
         assertNotNull("Element should exist at caret", element)
-        assertFalse("Should NOT be in task reference context (desc)", BabPsiUtil.isTaskReferenceContext(element!!))
+        assertFalse("Should NOT be in task reference context (desc)", BabContextUtil.isTaskReferenceContext(element!!))
     }
 
     fun testIsTaskReferenceContextInCmdField() {
@@ -63,7 +64,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
 
         val element = myFixture.file.findElementAt(myFixture.caretOffset)
         assertNotNull("Element should exist at caret", element)
-        assertFalse("Should NOT be in task reference context (cmd)", BabPsiUtil.isTaskReferenceContext(element!!))
+        assertFalse("Should NOT be in task reference context (cmd)", BabContextUtil.isTaskReferenceContext(element!!))
     }
 
     fun testIsIncludeBabfileContext() {
@@ -79,7 +80,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
 
         val element = myFixture.file.findElementAt(myFixture.caretOffset)
         assertNotNull("Element should exist at caret", element)
-        assertTrue("Should be in include babfile context", BabPsiUtil.isIncludeBabfileContext(element!!))
+        assertTrue("Should be in include babfile context", BabContextUtil.isIncludeBabfileContext(element!!))
     }
 
     fun testIsIncludeBabfileContextOutside() {
@@ -95,7 +96,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
 
         val element = myFixture.file.findElementAt(myFixture.caretOffset)
         assertNotNull("Element should exist at caret", element)
-        assertFalse("Should NOT be in include babfile context (prefix key)", BabPsiUtil.isIncludeBabfileContext(element!!))
+        assertFalse("Should NOT be in include babfile context (prefix key)", BabContextUtil.isIncludeBabfileContext(element!!))
     }
 
     fun testFindCurrentTaskName() {
@@ -114,7 +115,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
         val element = myFixture.file.findElementAt(myFixture.caretOffset)
         assertNotNull("Element should exist at caret", element)
 
-        val taskName = BabPsiUtil.findCurrentTaskName(element!!)
+        val taskName = BabTaskUtil.findCurrentTaskName(element!!)
         assertEquals("Current task should be 'test'", "test", taskName)
     }
 
@@ -129,7 +130,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
         val element = myFixture.file.findElementAt(myFixture.caretOffset)
         assertNotNull("Element should exist at caret", element)
 
-        val taskName = BabPsiUtil.findCurrentTaskName(element!!)
+        val taskName = BabTaskUtil.findCurrentTaskName(element!!)
         assertEquals("Current task should be 'deploy'", "deploy", taskName)
     }
 
@@ -148,7 +149,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
                   - cmd: echo main
         """.trimIndent()) as YAMLFile
 
-        val includeNames = BabPsiUtil.extractIncludeNames(psiFile)
+        val includeNames = BabTaskUtil.extractIncludeNames(psiFile)
         assertEquals("Should have 3 includes", 3, includeNames.size)
         assertTrue("Should contain 'utils'", includeNames.contains("utils"))
         assertTrue("Should contain 'libs'", includeNames.contains("libs"))
@@ -163,7 +164,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
                   - cmd: echo main
         """.trimIndent()) as YAMLFile
 
-        val includeNames = BabPsiUtil.extractIncludeNames(psiFile)
+        val includeNames = BabTaskUtil.extractIncludeNames(psiFile)
         assertTrue("Should have no includes", includeNames.isEmpty())
     }
 
@@ -178,7 +179,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
                   - cmd: echo main
         """.trimIndent()) as YAMLFile
 
-        val path = BabPsiUtil.getIncludeBabfilePath(psiFile, "utils")
+        val path = BabTaskUtil.getIncludeBabfilePath(psiFile, "utils")
         assertEquals("./utils/babfile.yml", path)
     }
 
@@ -193,7 +194,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
                   - cmd: echo main
         """.trimIndent()) as YAMLFile
 
-        val path = BabPsiUtil.getIncludeBabfilePath(psiFile, "nonexistent")
+        val path = BabTaskUtil.getIncludeBabfilePath(psiFile, "nonexistent")
         assertNull("Should return null for non-existent include", path)
     }
 
@@ -211,7 +212,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
                   - cmd: echo deploy
         """.trimIndent()) as YAMLFile
 
-        val tasks = BabPsiUtil.extractAllTaskReferences(psiFile)
+        val tasks = BabTaskUtil.extractAllTaskReferences(psiFile)
         assertEquals("Should have 3 tasks", 3, tasks.size)
         assertTrue("Should contain 'build'", tasks.contains("build"))
         assertTrue("Should contain 'test'", tasks.contains("test"))
@@ -231,7 +232,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
                   - cmd: echo test
         """.trimIndent()) as YAMLFile
 
-        val resolved = BabPsiUtil.resolveTaskReference(psiFile, "build")
+        val resolved = BabTaskUtil.resolveTaskReference(psiFile, "build")
         assertNotNull("Should resolve 'build' task", resolved)
         assertEquals("Resolved key should be 'build'", "build", resolved?.keyText)
     }
@@ -244,7 +245,7 @@ class BabPsiUtilTest : BasePlatformTestCase() {
                   - cmd: echo build
         """.trimIndent()) as YAMLFile
 
-        val resolved = BabPsiUtil.resolveTaskReference(psiFile, "nonexistent")
+        val resolved = BabTaskUtil.resolveTaskReference(psiFile, "nonexistent")
         assertNull("Should return null for non-existent task", resolved)
     }
 
@@ -259,9 +260,9 @@ class BabPsiUtilTest : BasePlatformTestCase() {
                   - cmd: echo test
         """.trimIndent()) as YAMLFile
 
-        assertTrue("'build' should be valid", BabPsiUtil.isValidTaskReference(psiFile, "build"))
-        assertTrue("'test' should be valid", BabPsiUtil.isValidTaskReference(psiFile, "test"))
-        assertFalse("'nonexistent' should be invalid", BabPsiUtil.isValidTaskReference(psiFile, "nonexistent"))
+        assertTrue("'build' should be valid", BabTaskUtil.isValidTaskReference(psiFile, "build"))
+        assertTrue("'test' should be valid", BabTaskUtil.isValidTaskReference(psiFile, "test"))
+        assertFalse("'nonexistent' should be invalid", BabTaskUtil.isValidTaskReference(psiFile, "nonexistent"))
     }
 
     fun testYamlKeysConstants() {

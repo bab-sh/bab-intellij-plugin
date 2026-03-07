@@ -4,6 +4,7 @@ import com.intellij.execution.lineMarker.ExecutorAction
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.components.service
+import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.yaml.psi.YAMLKeyValue
@@ -11,9 +12,9 @@ import org.jetbrains.yaml.psi.YAMLMapping
 import sh.bab.plugin.BabBundle
 import sh.bab.plugin.filetype.isBabfile
 import sh.bab.plugin.services.BabFileService
-import sh.bab.plugin.util.YamlKeys
+import sh.bab.plugin.model.YamlKeys
 
-class BabRunLineMarkerContributor : RunLineMarkerContributor() {
+class BabRunLineMarkerContributor : RunLineMarkerContributor(), DumbAware {
 
     override fun getInfo(element: PsiElement): Info? {
         if (element.parent !is YAMLKeyValue) return null

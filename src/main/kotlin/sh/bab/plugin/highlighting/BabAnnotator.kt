@@ -5,28 +5,31 @@ import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
 import org.jetbrains.yaml.psi.*
-import sh.bab.plugin.filetype.isBabfile
-import sh.bab.plugin.util.BabPsiUtil
-import sh.bab.plugin.util.YamlKeys
+import sh.bab.plugin.filetype.BabFileType
+import sh.bab.plugin.util.BabContextUtil
+import sh.bab.plugin.model.YamlKeys
 
 private val ROOT_SECTION_KEYS = setOf(YamlKeys.TASKS, YamlKeys.INCLUDES, "env", "vars", "silent", "output", "dir")
 private val TASK_PROPERTY_KEYS = setOf(YamlKeys.DESC, YamlKeys.RUN, YamlKeys.DEPS, YamlKeys.ALIAS, YamlKeys.ALIASES, "env", "vars", "platforms", "silent", "output", "dir", "when")
 private val RUN_ITEM_KEYS = setOf(
     "cmd", "task", "log", "level", "env", "platforms", "silent", "output", "dir",
     "prompt", "type", "message", "default", "defaults", "options",
-    "placeholder", "validate", "min", "max", "confirm", "when"
+    "placeholder", "validate", "min", "max", "confirm", "when", "label"
 )
+private val PARALLEL_BLOCK_KEYS = setOf("parallel", "mode", "limit", "color", "platforms", "when")
 private val LOG_LEVELS = setOf("debug", "info", "warn", "error")
 private val PROMPT_TYPES = setOf("confirm", "input", "select", "multiselect", "password", "number")
+private val PARALLEL_MODES = setOf("interleaved", "grouped")
 private val INTERPOLATION_PATTERN = Regex("""\$\{\{\s*([^}]+)\s*}}""")
 
-class BabAnnotator : Annotator {
+class BabAnnotator : Annotator, DumbAware {
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         val file = element.containingFile?.virtualFile ?: return
-        if (!isBabfile(file)) return
+        if (file.fileType != BabFileType) return
 
         when (element) {
             is YAMLKeyValue -> annotateKeyValue(element, holder)
@@ -49,6 +52,12 @@ class BabAnnotator : Annotator {
                 highlight(key, holder, if (keyText == "when") BabHighlightingColors.CONDITION_KEYWORD else BabHighlightingColors.PROPERTY_KEY)
 
             isRunItemPropertyKey(keyValue) && keyText in RUN_ITEM_KEYS ->
+                highlight(key, holder, if (keyText == "when") BabHighlightingColors.CONDITION_KEYWORD else BabHighlightingColors.PROPERTY_KEY)
+
+            isParallelBlockPropertyKey(keyValue) && keyText in PARALLEL_BLOCK_KEYS ->
+                highlight(key, holder, if (keyText == "when") BabHighlightingColors.CONDITION_KEYWORD else BabHighlightingColors.PROPERTY_KEY)
+
+            isParallelChildRunItemKey(keyValue) && keyText in RUN_ITEM_KEYS ->
                 highlight(key, holder, if (keyText == "when") BabHighlightingColors.CONDITION_KEYWORD else BabHighlightingColors.PROPERTY_KEY)
 
             isIncludeNameKey(keyValue) ->
@@ -77,10 +86,17 @@ class BabAnnotator : Annotator {
                 highlight(value, holder, BabHighlightingColors.PROMPT_TYPE)
             }
         }
+
+        if (isParallelModeKey(keyValue)) {
+            val value = keyValue.value
+            if (value is YAMLScalar && value.textValue.lowercase() in PARALLEL_MODES) {
+                highlight(value, holder, BabHighlightingColors.PARALLEL_MODE)
+            }
+        }
     }
 
     private fun annotateScalar(scalar: YAMLScalar, holder: AnnotationHolder) {
-        if (BabPsiUtil.isTaskReferenceContext(scalar)) {
+        if (BabContextUtil.isTaskReferenceContext(scalar)) {
             highlight(scalar, holder, BabHighlightingColors.TASK_REFERENCE)
         }
 
@@ -158,11 +174,33 @@ class BabAnnotator : Annotator {
             (isRootLevelKey(grandparent) || isTaskPropertyKey(grandparent) || isRunItemPropertyKey(grandparent))
     }
 
+    private fun isParallelBlockPropertyKey(keyValue: YAMLKeyValue): Boolean {
+        val parent = keyValue.parent as? YAMLMapping ?: return false
+        val sequenceItem = parent.parent as? YAMLSequenceItem ?: return false
+        val runKeyValue = sequenceItem.parent?.parent as? YAMLKeyValue ?: return false
+        return runKeyValue.keyText == YamlKeys.RUN && isTaskPropertyKey(runKeyValue)
+    }
+
+    private fun isParallelChildRunItemKey(keyValue: YAMLKeyValue): Boolean {
+        val parent = keyValue.parent as? YAMLMapping ?: return false
+        val sequenceItem = parent.parent as? YAMLSequenceItem ?: return false
+        val parallelKeyValue = sequenceItem.parent?.parent as? YAMLKeyValue ?: return false
+        if (parallelKeyValue.keyText != YamlKeys.PARALLEL) return false
+        val parallelBlockMapping = parallelKeyValue.parent as? YAMLMapping ?: return false
+        val runSequenceItem = parallelBlockMapping.parent as? YAMLSequenceItem ?: return false
+        val runKeyValue = runSequenceItem.parent?.parent as? YAMLKeyValue ?: return false
+        return runKeyValue.keyText == YamlKeys.RUN && isTaskPropertyKey(runKeyValue)
+    }
+
     private fun isLogLevelKey(keyValue: YAMLKeyValue): Boolean {
         return keyValue.keyText == "level" && isRunItemPropertyKey(keyValue)
     }
 
     private fun isPromptTypeKey(keyValue: YAMLKeyValue): Boolean {
         return keyValue.keyText == "type" && isRunItemPropertyKey(keyValue)
+    }
+
+    private fun isParallelModeKey(keyValue: YAMLKeyValue): Boolean {
+        return keyValue.keyText == "mode" && isParallelBlockPropertyKey(keyValue)
     }
 }

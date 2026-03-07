@@ -3,6 +3,7 @@ package sh.bab.plugin.settings
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.components.service
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
@@ -13,6 +14,8 @@ import com.intellij.ui.components.fields.ExtendableTextComponent
 import com.intellij.ui.components.fields.ExtendableTextField
 import com.intellij.ui.dsl.builder.*
 import sh.bab.plugin.BabBundle
+import sh.bab.plugin.model.BabExecutable
+import sh.bab.plugin.util.BabBinaryUtil
 import java.io.File
 import javax.swing.ComboBoxEditor
 import javax.swing.DefaultComboBoxModel
@@ -24,7 +27,7 @@ class BabSettingsConfigurable(
     private val project: Project
 ) : BoundConfigurable(BabBundle.message("settings.title")) {
 
-    private val settings = BabSettings.getInstance(project)
+    private val settings = project.service<BabSettings>()
     private val comboBoxModel = DefaultComboBoxModel<BabExecutable>()
     private var currentPath = settings.babBinaryPath
     private lateinit var workingDirectoryField: ExtendableTextField
@@ -155,7 +158,7 @@ class BabSettingsConfigurable(
 
     private fun populateExecutables() {
         comboBoxModel.removeAllElements()
-        BabSettings.detectAllBabBinaries().forEach { comboBoxModel.addElement(it) }
+        BabBinaryUtil.detectAllBabBinaries().forEach { comboBoxModel.addElement(it) }
     }
 
     private fun setSelectedPath(path: String) {
@@ -188,7 +191,7 @@ class BabSettingsConfigurable(
             return ValidationInfo(BabBundle.message("settings.validation.binary.not.executable"))
         }
 
-        val versionResult = BabSettings.getBabVersion(path)
+        val versionResult = BabBinaryUtil.getBabVersion(path)
         if (versionResult.isFailure) {
             return ValidationInfo(
                 BabBundle.message(

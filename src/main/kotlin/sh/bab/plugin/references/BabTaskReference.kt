@@ -8,7 +8,7 @@ import com.intellij.psi.PsiReferenceBase
 import com.intellij.psi.ResolveResult
 import org.jetbrains.yaml.psi.YAMLFile
 import org.jetbrains.yaml.psi.YAMLScalar
-import sh.bab.plugin.util.BabPsiUtil
+import sh.bab.plugin.util.BabTaskUtil
 
 class BabTaskReference(
     element: YAMLScalar,
@@ -19,7 +19,7 @@ class BabTaskReference(
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
         val yamlFile = element.containingFile as? YAMLFile ?: return ResolveResult.EMPTY_ARRAY
 
-        val taskKeyValue = BabPsiUtil.resolveTaskReference(yamlFile, taskName)
+        val taskKeyValue = BabTaskUtil.resolveTaskReference(yamlFile, taskName)
         if (taskKeyValue != null) {
             val target = taskKeyValue.key ?: taskKeyValue
             return arrayOf(PsiElementResolveResult(target))

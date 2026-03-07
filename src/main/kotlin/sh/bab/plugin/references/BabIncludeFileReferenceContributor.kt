@@ -10,7 +10,7 @@ import com.intellij.psi.PsiReferenceRegistrar
 import com.intellij.util.ProcessingContext
 import org.jetbrains.yaml.psi.YAMLScalar
 import sh.bab.plugin.filetype.isBabfile
-import sh.bab.plugin.util.BabPsiUtil
+import sh.bab.plugin.util.BabContextUtil
 
 class BabIncludeFileReferenceContributor : PsiReferenceContributor() {
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
@@ -26,7 +26,7 @@ class BabIncludeFileReferenceContributor : PsiReferenceContributor() {
                     val virtualFile = element.containingFile.originalFile.virtualFile
                         ?: return PsiReference.EMPTY_ARRAY
                     if (!isBabfile(virtualFile)) return PsiReference.EMPTY_ARRAY
-                    if (!BabPsiUtil.isIncludeBabfileContext(element)) return PsiReference.EMPTY_ARRAY
+                    if (!BabContextUtil.isIncludeBabfileContext(element)) return PsiReference.EMPTY_ARRAY
 
                     if (element.textValue.isEmpty()) return PsiReference.EMPTY_ARRAY
 

@@ -5,12 +5,14 @@ import com.intellij.execution.ExecutionResult
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.CommandLineState
 import com.intellij.execution.configurations.GeneralCommandLine
+import com.intellij.execution.configurations.ParametersList
 import com.intellij.execution.process.KillableColoredProcessHandler
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessTerminatedListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.terminal.TerminalExecutionConsole
+import com.intellij.openapi.components.service
 import sh.bab.plugin.settings.BabSettings
 import java.io.File
 
@@ -35,7 +37,7 @@ class BabRunProfileState(
 
     private fun buildCommandLine(): GeneralCommandLine {
         val project = configuration.project
-        val settings = BabSettings.getInstance(project)
+        val settings = project.service<BabSettings>()
 
         return GeneralCommandLine().apply {
             exePath = settings.getEffectiveBabBinaryPath()
@@ -47,38 +49,7 @@ class BabRunProfileState(
 
             addParameter(configuration.taskName)
 
-            parseArguments(settings.additionalArgs).forEach { addParameter(it) }
+            ParametersList.parse(settings.additionalArgs).forEach { addParameter(it) }
         }
-    }
-
-    private fun parseArguments(args: String): List<String> {
-        if (args.isBlank()) return emptyList()
-
-        val result = mutableListOf<String>()
-        val current = StringBuilder()
-        var inSingleQuote = false
-        var inDoubleQuote = false
-
-        for (c in args) {
-            when (c) {
-                '\'' -> if (!inDoubleQuote) inSingleQuote = !inSingleQuote else current.append(c)
-                '"' -> if (!inSingleQuote) inDoubleQuote = !inDoubleQuote else current.append(c)
-                ' ' -> if (!inSingleQuote && !inDoubleQuote) {
-                    if (current.isNotEmpty()) {
-                        result.add(current.toString())
-                        current.clear()
-                    }
-                } else {
-                    current.append(c)
-                }
-                else -> current.append(c)
-            }
-        }
-
-        if (current.isNotEmpty()) {
-            result.add(current.toString())
-        }
-
-        return result
     }
 }

@@ -11,33 +11,13 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.yaml.psi.YAMLFile
-import org.jetbrains.yaml.psi.YAMLKeyValue
 import org.jetbrains.yaml.psi.YAMLMapping
 import org.jetbrains.yaml.psi.YAMLSequence
 import sh.bab.plugin.filetype.isBabfile
-import sh.bab.plugin.util.YamlKeys
-
-data class BabTask(
-    val name: String,
-    val description: String?,
-    val dependencies: List<String>,
-    val alias: String? = null,
-    val aliases: List<String> = emptyList(),
-    val psiElement: YAMLKeyValue? = null
-)
-
-data class BabFile(
-    val file: VirtualFile,
-    val relativePath: String,
-    val tasks: List<BabTask>,
-    val includes: List<BabInclude>
-)
-
-data class BabInclude(
-    val prefix: String,
-    val babfilePath: String,
-    val resolvedFile: BabFile?
-)
+import sh.bab.plugin.model.BabFile
+import sh.bab.plugin.model.BabInclude
+import sh.bab.plugin.model.BabTask
+import sh.bab.plugin.model.YamlKeys
 
 @Service(Service.Level.PROJECT)
 class BabFileService(private val project: Project) {

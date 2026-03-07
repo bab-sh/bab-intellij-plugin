@@ -2,6 +2,7 @@ package sh.bab.plugin.completion
 
 import com.intellij.codeInsight.completion.CompletionContributor
 import com.intellij.codeInsight.completion.CompletionParameters
+import com.intellij.openapi.project.DumbAware
 import com.intellij.codeInsight.completion.CompletionProvider
 import com.intellij.codeInsight.completion.CompletionResultSet
 import com.intellij.codeInsight.completion.CompletionType
@@ -10,9 +11,9 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
 import sh.bab.plugin.filetype.isBabfile
 import sh.bab.plugin.icons.BabIcons
-import sh.bab.plugin.util.BabPsiUtil
+import sh.bab.plugin.util.BabContextUtil
 
-class BabConditionCompletionContributor : CompletionContributor() {
+class BabConditionCompletionContributor : CompletionContributor(), DumbAware {
     init {
         extend(
             CompletionType.BASIC,
@@ -25,7 +26,7 @@ class BabConditionCompletionContributor : CompletionContributor() {
                 ) {
                     val file = parameters.originalFile.virtualFile ?: return
                     if (!isBabfile(file)) return
-                    if (!BabPsiUtil.isConditionValueContext(parameters.position)) return
+                    if (!BabContextUtil.isConditionValueContext(parameters.position)) return
 
                     result.addElement(
                         LookupElementBuilder.create("\${{  }}")
