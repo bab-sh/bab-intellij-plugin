@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+## [0.2.0]
+
+### Added
+
+- Support for `parallel` run item type for concurrent task execution
+- Parallel block properties: `mode` (interleaved/grouped), `limit`, `color`
+- Support for `label` property on cmd, task, and log run items
+- Syntax highlighting for parallel block keys and mode values
+- Task completion, condition completion, and inspections work inside parallel blocks
+- Missing inspection description for duplicate alias check
+
+### Changed
+
+- Refactored plugin architecture: split BabPsiUtil into BabContextUtil and BabTaskUtil
+- Extracted model classes to dedicated model package
+- Extracted binary detection to BabBinaryUtil
+- Separated BabSettings state from service component
+- Removed unnecessary BabCoroutineService wrapper
+- Replaced custom argument parsing with platform ParametersList API
+- Fixed deprecated postStartupActivity extension point
+- Added DumbAware to annotator, completion, and run contributors
+- Synced JSON schema with upstream bab project (ParallelChildItem restricts prompt/nested parallel)
+
 ## [0.1.8]
 
 ### Added
@@ -227,7 +250,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.8...v0.2.0
 [0.1.8]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.5...v0.1.6
