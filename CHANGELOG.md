@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.2.1]
+
+### Fixed
+
+- Added `silent` and `output` properties to parallel block schema and syntax highlighting
+
 ## [0.2.0]
 
 ### Added
@@ -250,7 +256,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.8...v0.2.0
 [0.1.8]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.6...v0.1.7
