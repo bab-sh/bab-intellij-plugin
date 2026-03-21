@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.2.2]
+
+### Added
+
+- Support for `tabs` parallel display mode (interleaved, grouped, tabs)
+- Updated JSON schema and syntax highlighting for new mode value
+
 ## [0.2.1]
 
 ### Fixed
@@ -256,7 +263,8 @@
 - Ctrl+Click navigation from dependency to task definition
 - YAML syntax highlighting via bundled YAML plugin
 
-[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.8...v0.2.0
 [0.1.8]: https://github.com/bab-sh/bab-intellij-plugin/compare/v0.1.7...v0.1.8

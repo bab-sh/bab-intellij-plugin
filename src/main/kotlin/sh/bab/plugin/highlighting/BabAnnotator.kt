@@ -22,7 +22,7 @@ private val RUN_ITEM_KEYS = setOf(
 private val PARALLEL_BLOCK_KEYS = setOf("parallel", "mode", "limit", "color", "silent", "output", "platforms", "when")
 private val LOG_LEVELS = setOf("debug", "info", "warn", "error")
 private val PROMPT_TYPES = setOf("confirm", "input", "select", "multiselect", "password", "number")
-private val PARALLEL_MODES = setOf("interleaved", "grouped")
+private val PARALLEL_MODES = setOf("interleaved", "grouped", "tabs")
 private val INTERPOLATION_PATTERN = Regex("""\$\{\{\s*([^}]+)\s*}}""")
 
 class BabAnnotator : Annotator, DumbAware {
