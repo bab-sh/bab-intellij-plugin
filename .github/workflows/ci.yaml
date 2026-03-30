@@ -50,7 +50,7 @@ jobs:
           java-version: 21
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Validate changelog format
         run: ./gradlew getChangelog
@@ -85,7 +85,7 @@ jobs:
           java-version: 21
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build Plugin
         run: ./gradlew buildPlugin
@@ -125,7 +125,7 @@ jobs:
           java-version: 21
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: true
 
@@ -140,7 +140,7 @@ jobs:
           path: build/reports/tests
 
       - name: Upload Code Coverage Report
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: build/reports/kover/report.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -171,7 +171,7 @@ jobs:
           java-version: 21
 
       - name: Qodana - Code Inspection
-        uses: JetBrains/qodana-action@v2025.3.1
+        uses: JetBrains/qodana-action@v2025.3.2
         with:
           cache-default-branch-only: true
 
@@ -196,7 +196,7 @@ jobs:
           java-version: 21
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: true
 
@@ -229,7 +229,7 @@ jobs:
           java-version: 21
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: true
 
